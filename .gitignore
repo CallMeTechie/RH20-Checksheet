@@ -1,0 +1,4 @@
+# Laufzeitdaten — enthalten echte Prüfprotokolle, gehören nicht ins Repository
+data/*.sqlite
+data/*.sqlite-journal
+data/backup-*.sqlite

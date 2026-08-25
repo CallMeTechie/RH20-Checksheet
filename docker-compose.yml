@@ -1,0 +1,40 @@
+# RH20 Kopf-Prüfprotokoll — für Synology Container Manager (DSM 7.2+)
+# als "Projekt" importierbar, oder per `docker compose up -d` über SSH.
+services:
+  rh20-inspection:
+    # Vorgebautes Image; nach `docker load` liegt es unter diesem Namen vor.
+    image: rh20-inspection:1.1.2
+    container_name: rh20-inspection
+    restart: unless-stopped
+
+    ports:
+      # Links der Port auf der NAS. 8080 ist auf DSM oft schon belegt —
+      # bei Bedarf auf einen anderen freien Port ändern.
+      - "8090:80"
+
+    volumes:
+      # Nur die Datenbank ist dauerhaft. Der Pfad muss auf der NAS existieren.
+      - /volume1/docker/rh20-inspection/data:/var/www/html/data
+
+    environment:
+      TZ: Europe/Berlin
+      # UID/GID des Besitzers von /volume1/docker/rh20-inspection/data auf
+      # dieser Synology (Besitzer des Verzeichnisses). Dadurch gehört die
+      # erzeugte SQLite-Datei dem DSM-Benutzer und ist in der File Station
+      # normal handhabbar. Auf anderen NAS ermitteln mit:
+      #   stat -c '%u %g' /volume1/docker/rh20-inspection/data
+      PUID: "1026"
+      PGID: "100"
+
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1/index.php') ? 0 : 1);"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

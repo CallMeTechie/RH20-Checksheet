@@ -1,0 +1,19 @@
+# Laufzeitdaten gehören ins Volume, nicht ins Image
+data/
+*.sqlite
+*.sqlite3
+
+# Build- und Werkzeugdateien, die nicht ins Image sollen.
+# Achtung: docker/ ist hier NICHT gelistet — der Build kopiert daraus die
+# vhost-Konfiguration und das Entrypoint-Skript.
+Dockerfile
+.dockerignore
+docker-compose.yml
+docs/
+.git/
+.gitignore
+*.tar
+*.tar.gz
+
+# NAS-Profil des Plugins gehört nicht ins Image
+context/

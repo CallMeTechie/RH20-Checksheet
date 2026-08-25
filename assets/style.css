@@ -1,0 +1,395 @@
+/* RH20 Shaft Inspection — Stylesheet
+   Palette: #14324A (navy, header/primary), #1D6F8C (teal accent),
+            #F5F7F9 (page bg), #FFFFFF (cards), #E2E8ED (borders),
+            #C6EFCE / #1E5E27 (pass), #FFE9A8 / #7A5300 (grenzwertig),
+            #FFC7CE / #8C1620 (fail), #ECEFF2 / #5B6B79 (ausstehend)
+   Type: system-ui für Oberflächentext, ui-monospace für Messwerte.
+   Druck: DIN A4 quer, ausgelegt auf höchstens zwei Seiten (siehe unten).
+*/
+
+@page { size: A4 landscape; margin: 8mm 9mm; }
+
+:root {
+    --navy: #14324A;
+    --teal: #1D6F8C;
+    --bg: #F5F7F9;
+    --card: #FFFFFF;
+    --border: #E2E8ED;
+    --text: #1A2530;
+    --muted: #5B6B79;
+    --pass-bg: #C6EFCE; --pass-text: #1E5E27; --pass-border: #9FDDAC;
+    --warn-bg: #FFE9A8; --warn-text: #7A5300; --warn-border: #E3BC55;
+    --fail-bg: #FFC7CE; --fail-text: #8C1620; --fail-border: #F0A7AE;
+    --pending-bg: #ECEFF2; --pending-text: #5B6B79;
+    --radius: 9px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.mono { font-family: ui-monospace, "SF Mono", Consolas, "Liberation Mono", monospace; }
+a { color: var(--teal); }
+
+/* ---------- Topbar ---------- */
+.topbar {
+    background: var(--navy);
+    color: #fff;
+    padding: 11px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+.topbar h1 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: .2px; }
+.topbar .sub-inline { font-weight: 400; color: #B9CBD8; font-size: 12px; }
+.topbar .sub { color: #B9CBD8; font-size: 11.5px; margin-top: 2px; }
+
+.wrap { max-width: 1140px; margin: 18px auto 50px; padding: 0 18px; }
+.wrap.wide { max-width: 1680px; }
+
+/* ---------- Cards ---------- */
+.card {
+    --pad-x: 18px;
+    --pad-y: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--pad-y) var(--pad-x);
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(20, 50, 74, .04);
+}
+.card h2 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: #fff;
+    background: var(--navy);
+    margin: calc(var(--pad-y) * -1) calc(var(--pad-x) * -1) 14px;
+    padding: 8px var(--pad-x);
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+.card h2.teal { background: var(--teal); }
+
+/* ---------- Buttons ---------- */
+.icon-btn {
+    -webkit-appearance: none;
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    flex-shrink: 0;
+    line-height: 0;
+}
+.icon-btn.primary   { background: var(--teal); color: #fff; }
+.icon-btn.primary:hover   { background: #175A72; }
+.icon-btn.secondary { background: #EEF3F6; color: var(--navy); border-color: var(--border); }
+.icon-btn.secondary:hover { background: #E2E8ED; }
+.icon-btn.danger    { background: #FDEEEF; color: var(--fail-text); border-color: #F1C0C4; }
+.icon-btn.danger:hover    { background: #FBDFE1; }
+.icon-btn.ghost-onnavy       { background: rgba(255,255,255,.12); color: #fff; }
+.icon-btn.ghost-onnavy:hover { background: rgba(255,255,255,.24); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* ---------- Sprachumschalter ---------- */
+.lang-switch {
+    display: inline-flex;
+    border: 1px solid rgba(255,255,255,.28);
+    border-radius: 7px;
+    overflow: hidden;
+    margin-right: 4px;
+}
+.lang-opt {
+    padding: 0 10px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .4px;
+    color: #C9D8E2;
+    text-decoration: none;
+}
+.lang-opt:hover { background: rgba(255,255,255,.14); color: #fff; }
+.lang-opt.active { background: #fff; color: var(--navy); }
+.lang-opt + .lang-opt { border-left: 1px solid rgba(255,255,255,.28); }
+
+/* Buttons, die eine schreibende Aktion per POST auslösen, stecken in einem
+   Formular — das darf im Layout nicht als Block auftragen. */
+.inline-form { display: inline; margin: 0; }
+.text-btn {
+    -webkit-appearance: none; appearance: none;
+    border: none; background: none; cursor: pointer;
+    font: inherit; padding: 6px 0;
+}
+.text-btn.primary { color: var(--teal); font-weight: 600; }
+.text-btn.primary:hover { text-decoration: underline; }
+
+/* ---------- Status pill ---------- */
+.pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+}
+.pill.PASS       { background: var(--pass-bg);    color: var(--pass-text); }
+.pill.WARN       { background: var(--warn-bg);    color: var(--warn-text); }
+.pill.FAIL       { background: var(--fail-bg);    color: var(--fail-text); }
+.pill.INCOMPLETE { background: var(--pending-bg); color: var(--pending-text); }
+
+/* ---------- Speicherstatus ---------- */
+.save-status { font-size: 11.5px; }
+.save-status.ok { color: #8FD9A0; }
+.save-status.error { color: #FFB3B8; font-weight: 600; }
+
+/* ---------- Übersichtsliste ---------- */
+table.list { width: 100%; border-collapse: collapse; }
+table.list th, table.list td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+table.list th { color: var(--muted); font-weight: 600; font-size: 10.5px; text-transform: uppercase; }
+table.list tr:hover td { background: #FAFCFD; }
+table.list td .spec-note { display: block; margin-top: 2px; }
+.empty-state { text-align: center; color: var(--muted); padding: 32px 0; }
+
+/* ---------- Formularfelder ---------- */
+.field-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 3px; }
+input[type=text], input[type=date] {
+    width: 100%;
+    padding: 6px 9px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 12.5px;
+    font-family: inherit;
+    background: #fff;
+    color: var(--text);
+}
+input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+.hint { color: var(--muted); font-size: 11px; margin-top: 6px; line-height: 1.5; }
+
+/* ---------- Messtabellen ---------- */
+.table-scroll { overflow-x: auto; }
+table.spec { width: 100%; border-collapse: collapse; margin-top: 2px; }
+table.spec th, table.spec td { border: 1px solid var(--border); padding: 5px 6px; text-align: center; font-size: 12px; }
+table.spec thead th {
+    background: var(--teal); color: #fff; font-weight: 600;
+    font-size: 10px; text-transform: uppercase; letter-spacing: .2px; line-height: 1.25;
+}
+table.spec thead th .spec-note { color: #D6E7EE; font-size: 9.5px; text-transform: none; letter-spacing: 0; }
+table.spec td.label, table.spec th.label { text-align: left; }
+/* Zeilenstreifung. Achtung: dieser Selektor ist (0,2,4) spezifisch — jede
+   Regel, die eine Zellenfarbe setzt, muss mindestens genauso tief sein UND
+   danach stehen, sonst gewinnt die Streifung auf den geraden Zeilen. Genau
+   das hatte die Overall-Spalte abwechselnd grün und weiß erscheinen lassen. */
+table.spec tbody tr:nth-child(even) td { background: #FBFCFD; }
+
+table.spec tbody tr td.syringe { font-weight: 700; background: #EEF3F6; }
+/* Referenz-Shaft, an dem der Internal Head Sensor eingemessen wird */
+table.spec tbody tr td.syringe.ref-shaft { background: #DCE7EE; border-left: 3px solid var(--teal); }
+table.spec.compact { max-width: 640px; }
+.remarks-text { text-align: left; word-break: break-word; }
+
+/* Messwert-Eingabefelder: bewusst type=text (nicht type=number), damit
+   Dezimaltrennzeichen (Punkt oder Komma) unabhängig von der Browser-Sprache
+   funktionieren und Minuszeichen problemlos eingebbar sind. */
+table.spec td input.autosave {
+    width: 70px;
+    text-align: center;
+    padding: 5px 3px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 12px;
+    background: #fff;
+    color: var(--text);
+}
+table.spec td input.autosave.remarks { width: 100%; min-width: 130px; text-align: left; font-family: inherit; }
+table.spec td input.autosave:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+
+/* Bewertung einer Messzelle — gilt für Eingabefeld (edit) und Textzelle (view) */
+input.autosave.ok   { background: var(--pass-bg); border-color: var(--pass-border); color: var(--pass-text); }
+input.autosave.warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); font-weight: 600; }
+input.autosave.bad  { background: var(--fail-bg); border-color: var(--fail-border); color: var(--fail-text); }
+
+/* Bewertete Zellen (Berichtsansicht). Bewusst so tief wie die Zeilenstreifung
+   oben notiert und danach — dadurch gilt die Farbe auf geraden wie ungeraden
+   Zeilen gleichermaßen, ohne Sonderregel je Zeilenparität. */
+table.spec tbody tr td.ok   { background: var(--pass-bg); border-color: var(--pass-border); color: var(--pass-text); }
+table.spec tbody tr td.warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); font-weight: 600; }
+table.spec tbody tr td.bad  { background: var(--fail-bg); border-color: var(--fail-border); color: var(--fail-text); }
+
+/* Nicht gespeicherter Wert (Tippfehler / Netzwerkfehler) — deutlich markieren */
+input.autosave.invalid {
+    background: #FFF0F1 !important;
+    border: 2px solid var(--fail-text) !important;
+    color: var(--fail-text);
+}
+
+/* Kurzer Blitz beim erfolgreichen bzw. fehlgeschlagenen Auto-Save */
+@keyframes flashOk  { 0% { box-shadow: 0 0 0 3px rgba(46,125,141,.55); } 100% { box-shadow: 0 0 0 0 rgba(46,125,141,0); } }
+@keyframes flashBad { 0% { box-shadow: 0 0 0 3px rgba(140,22,32,.55); } 100% { box-shadow: 0 0 0 0 rgba(140,22,32,0); } }
+.flash-ok  { animation: flashOk 700ms ease-out; }
+.flash-bad { animation: flashBad 700ms ease-out; }
+
+/* Ergebnisspalte „Overall" bzw. „Result": durchgehend eingefärbt, unabhängig
+   von der Zeilenstreifung. result-blank setzt bewusst keinen Hintergrund,
+   damit unbewertete Zeilen die normale Streifung behalten. */
+table.spec tbody tr td.result-PASS  { background: var(--pass-bg); color: var(--pass-text); font-weight: 700; }
+table.spec tbody tr td.result-WARN  { background: var(--warn-bg); color: var(--warn-text); font-weight: 700; }
+table.spec tbody tr td.result-FAIL  { background: var(--fail-bg); color: var(--fail-text); font-weight: 700; }
+table.spec tbody tr td.result-blank { color: var(--muted); }
+.result-inline { font-weight: 700; font-size: 10.5px; padding: 1px 6px; border-radius: 4px; margin-left: 6px; }
+.result-inline.result-PASS  { background: var(--pass-bg); color: var(--pass-text); }
+.result-inline.result-FAIL  { background: var(--fail-bg); color: var(--fail-text); }
+.result-inline.result-blank { background: var(--pending-bg); color: var(--pending-text); }
+
+.spec-note { color: var(--muted); font-size: 10.5px; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--muted); margin-top: 8px; }
+.legend .swatch { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; border: 1px solid rgba(0,0,0,.12); }
+.swatch-ok   { background: var(--pass-bg); }
+.swatch-warn { background: var(--warn-bg); }
+.swatch-bad  { background: var(--fail-bg); }
+
+/* ---------- Zusammenfassung ----------
+   Bewusst OHNE "x/20" je Kategorie: die Kategorien ergänzen sich zur
+   Gesamtzahl, die genau einmal darunter steht. */
+.summary-verdict { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.summary-text { font-size: 13px; font-weight: 600; }
+.summary-bar {
+    display: flex; height: 10px; border-radius: 999px; overflow: hidden;
+    background: var(--pending-bg); border: 1px solid var(--border);
+}
+.summary-bar .seg { display: block; height: 100%; transition: width .2s ease; }
+.summary-bar .seg.pass    { background: #4CAF6B; }
+.summary-bar .seg.warn    { background: #E0A61C; }
+.summary-bar .seg.fail    { background: #C7434F; }
+.summary-bar .seg.pending { background: transparent; }
+
+.summary-counts { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 10px 0 0; padding: 0; font-size: 12px; }
+.summary-counts li { display: flex; align-items: baseline; gap: 6px; color: var(--muted); }
+.summary-counts li b { font-family: ui-monospace, monospace; font-size: 17px; font-weight: 700; color: var(--text); }
+.summary-counts li.pass b { color: #2E7D42; }
+.summary-counts li.warn b { color: #96700C; }
+.summary-counts li.fail b { color: var(--fail-text); }
+.summary-total { font-size: 10.5px; color: var(--muted); margin-top: 6px; text-transform: uppercase; letter-spacing: .3px; }
+
+/* ---------- Kopfdaten im Bericht ---------- */
+.head-info { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px 14px; margin: 0; }
+.head-info dt { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .3px; }
+.head-info dd { margin: 1px 0 0; font-size: 14px; font-weight: 600; }
+.head-info .unit { font-weight: 400; font-size: 11px; color: var(--muted); }
+.head-info dd.ok, .head-info dd.warn, .head-info dd.bad { background: none; }
+
+/* Fußnoten für lange Bemerkungen (Berichtsansicht) */
+.footnotes { margin: 10px 0 0; padding-left: 20px; font-size: 11.5px; color: var(--text); }
+.footnotes li { margin-bottom: 3px; }
+.fn-ref { font-size: 11px; white-space: nowrap; }
+
+/* =========================================================================
+   Druck — DIN A4 Querformat, höchstens zwei Seiten
+
+   Aufteilung: Seite 1 trägt Kopfdaten, die einmalige Flow-Messung und die
+   Messtabelle A–T. Die Zusammenfassung samt Unterschriftenblock bleibt als
+   Einheit zusammen und rutscht als Ganzes auf Seite 2, wenn sie auf Seite 1
+   nicht mehr passt. Reißt die Messtabelle über den Seitenrand, wird ihr
+   Tabellenkopf auf der Folgeseite wiederholt und keine Zeile aufgetrennt.
+   ========================================================================= */
+@media print {
+    html, body { background: #fff; font-size: 8pt; }
+
+    /* Farbmarkierungen (grün/gelb/rot) müssen im Ausdruck erhalten bleiben. */
+    *, *::before, *::after { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    .no-print, .topbar { display: none !important; }
+
+    .wrap, .wrap.wide { max-width: none; margin: 0; padding: 0; }
+    .table-scroll { overflow: visible; }
+
+    .card {
+        --pad-x: 3mm;
+        --pad-y: 2mm;
+        border: .4pt solid #8A9AA6;
+        border-radius: 0;
+        box-shadow: none;
+        margin: 0 0 2mm;
+    }
+    .card h2 {
+        font-size: 8pt;
+        margin: calc(var(--pad-y) * -1) calc(var(--pad-x) * -1) 1.5mm;
+        padding: 1mm var(--pad-x);
+        border-radius: 0;
+        background: var(--navy);
+    }
+    .card h2.teal { background: var(--teal); }
+
+    /* Kleine Blöcke nie zerreißen; die lange Messtabelle darf umbrechen. */
+    .page-block, .summary-card { break-inside: avoid; page-break-inside: avoid; }
+    .table-card { break-inside: auto; page-break-inside: auto; }
+
+    .head-info { grid-template-columns: repeat(5, 1fr); gap: 1mm 3mm; }
+    .head-info dt { font-size: 6.5pt; }
+    .head-info dd { font-size: 9pt; }
+
+    /* Feste Spaltenbreiten, damit die 12 Spalten die 297 mm sauber ausfüllen
+       und nicht je nach Inhalt unterschiedlich breit ausfallen. */
+    table.spec.grid { table-layout: fixed; width: 100%; }
+    table.spec.grid .col-syringe { width: 3.5%; }
+    table.spec.grid .col-overall { width: 6.5%; }
+    table.spec.grid .col-remarks { width: 15%; }
+
+    table.spec th, table.spec td { border: .4pt solid #8A9AA6; padding: .35mm .8mm; font-size: 7.2pt; line-height: 1.15; }
+    table.spec thead th { font-size: 6.2pt; letter-spacing: 0; padding: .6mm .8mm; line-height: 1.15; }
+    table.spec thead th .spec-note { font-size: 5.6pt; }
+    table.spec .spec-note { font-size: 6pt; }
+
+    /* Tabellenkopf auf jeder Seite wiederholen, Zeilen nie aufteilen. */
+    table.spec thead { display: table-header-group; }
+    table.spec tfoot { display: table-footer-group; }
+    table.spec tr { break-inside: avoid; page-break-inside: avoid; }
+
+    .footnotes { font-size: 6.8pt; margin-top: 1.5mm; padding-left: 4mm; line-height: 1.25; }
+    .footnotes li { margin-bottom: .4mm; }
+    .fn-ref { font-size: 6.8pt; color: #000; text-decoration: none; }
+
+    /* Im Ausdruck trägt nur die Overall-Spalte die grüne PASS-Markierung.
+       Die Messwerte selbst bleiben ungefärbt; Gelb (grenzwertig) und Rot
+       (außerhalb der Spezifikation) bleiben erhalten, damit der auffällige
+       Einzelwert auf dem Papier weiterhin auffindbar ist. */
+    table.spec tbody tr td.ok,
+    table.spec input.autosave.ok {
+        background: transparent !important;
+        border-color: var(--border) !important;
+        color: var(--text) !important;
+    }
+
+    .legend { font-size: 6.5pt; gap: 4mm; margin-top: 1mm; }
+    /* Die grüne Legendenmarke erklärt am Bildschirm die Messwertfärbung —
+       im Ausdruck gibt es die dort nicht mehr. */
+    .legend .legend-ok { display: none; }
+    .legend .swatch { width: 2.5mm; height: 2.5mm; }
+
+    .summary-verdict { margin-bottom: 1.2mm; }
+    .summary-text { font-size: 9pt; }
+    .summary-bar { height: 2mm; }
+    .summary-counts { font-size: 7.5pt; margin-top: 1mm; gap: 1mm 7mm; }
+    .summary-counts li b { font-size: 9.5pt; }
+    .summary-total { font-size: 6.5pt; margin-top: 1mm; }
+    .pill { font-size: 8pt; padding: .5mm 2mm; }
+}
