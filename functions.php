@@ -140,6 +140,20 @@ function fmtNum(?float $v): string
 }
 
 /**
+ * Anzeigetext einer Messzelle: der formatierte Wert, oder '—' wenn nicht erfasst.
+ *
+ * Bewusst eine eigene Funktion und keine Prüfung im Template: `fmtNum(0.0)` liefert
+ * den String '0', und '0' ist in PHP falsy. Ein `h(fmtNum($v)) ?: '—'` im Template
+ * zeigt deshalb für einen gemessenen Nullwert dasselbe Zeichen wie für einen gar
+ * nicht erfassten. Bei Drücken und Durchflüssen fiel das nie auf, beim
+ * Repeated-sliding-Test ist 0.00 der Normalfall.
+ */
+function fmtCell(?float $v): string
+{
+    return $v === null ? '—' : fmtNum($v);
+}
+
+/**
  * Bewertet einen Messwert gegen die Fuji-Prüfvorgabe.
  * Rückgabe: 'ok' (grün), 'warn' (gelb, grenzwertig) oder 'bad' (rot).
  *

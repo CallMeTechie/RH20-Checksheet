@@ -83,7 +83,7 @@ $footnotes = remarkFootnotes($byLetter);
                 <tr>
                     <td class="label"><?= h(t($m['label'])) ?></td>
                     <td><?= h($m['spec']) ?></td>
-                    <td class="mono <?= h(cellClass($val, $field)) ?>"><?= h(fmtNum($val)) ?: '—' ?></td>
+                    <td class="mono <?= h(cellClass($val, $field)) ?>"><?= h(fmtCell($val)) ?></td>
                     <td class="result-<?= $res ?: 'blank' ?>"><?= $res ?: h(t('pending')) ?></td>
                 </tr>
                 <?php endforeach; ?>
@@ -120,7 +120,7 @@ $footnotes = remarkFootnotes($byLetter);
                     <?php foreach ($columns as $key => $c):
                         $val = isset($r[$key]) && $r[$key] !== null ? (float)$r[$key] : null;
                     ?>
-                    <td class="mono <?= h(cellClass($val, $key, $letter)) ?>"><?= h(fmtNum($val)) ?: '—' ?></td>
+                    <td class="mono <?= h(cellClass($val, $key, $letter)) ?>"><?= h(fmtCell($val)) ?></td>
                     <?php endforeach; ?>
                     <td class="col-overall result-<?= $res ?: 'blank' ?>"><?= $res ?: '—' ?></td>
                     <td class="col-remarks remarks-text">
