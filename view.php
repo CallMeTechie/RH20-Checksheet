@@ -118,7 +118,7 @@ $serial    = $insp['serial_number'] !== '' ? $insp['serial_number'] : '—';
                     <?php foreach ($columns as $key => $c):
                         $val = isset($r[$key]) && $r[$key] !== null ? (float)$r[$key] : null;
                     ?>
-                    <td class="mono <?= h(cellClass($val, $key, $letter)) ?>"><?= h(fmtCell($val)) ?></td>
+                    <td class="mono <?= h(cellClass($val, $key, $letter)) ?>"><?= h(fmtCell($val, $c['decimals'] ?? null)) ?></td>
                     <?php endforeach; ?>
                     <td class="col-overall result-<?= $res ?: 'blank' ?>"><?= $res ?: '—' ?></td>
                 </tr>

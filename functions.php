@@ -28,6 +28,14 @@ const IHS_REF_SHAFT  = 'A';   // Shaft, an dem eingemessen wird
 const CONTACT_TARGET = 70.0;
 const CONTACT_TOL    = 4.0;
 
+/* ---------------------------------------------------------------------------
+ * Valve Air Stick — Repeated sliding test. Gemessen wird je Shaft, wie stark die
+ * Rückkehrposition des Valve Air nach zehn Durchgängen streut. Bewertet wird der
+ * Betrag; die Toleranz ist symmetrisch, das Vorzeichen wird nur mitgeschrieben,
+ * weil die Messuhr es anzeigt. 0.00 ist der Normalfall, nicht die Ausnahme.
+ * ------------------------------------------------------------------------- */
+const VALVE_SLIDE_MAX = 0.08;  // mm, Betrag, Grenze eingeschlossen
+
 /**
  * Vorbelegung für Nozzle Cleaning Pressure. Das Messinstrument zeigt maximal
  * 100 kPa an, der reale Druck liegt deutlich höher — der Wert ist deshalb in
@@ -67,6 +75,8 @@ function measurementColumns(): array
         'vacbreak_flow'     => ['group' => 'Vacuum Break Down', 'label' => 'Flow (L/min)',   'spec' => '≥ 0.5'],
         'clean_pressure'    => ['group' => 'Nozzle Cleaning',   'label' => 'Pressure (kPa)', 'spec' => '≥ 100'],
         'clean_flow'        => ['group' => 'Nozzle Cleaning',   'label' => 'Flow (L/min)',   'spec' => '≥ 0.8'],
+        'valve_slide' => ['group' => 'Valve Air Stick', 'label' => 'Repeated Sliding (mm)',
+                          'spec'  => '|Wert| ≤ 0.08', 'decimals' => 2],
     ];
 }
 
@@ -202,6 +212,7 @@ function specState(string $field, float $value, string $syringe = ''): string
         'clean_pressure'    => $value >= 100 - SPEC_EPS,
         'clean_flow'        => $value >= 0.8 - SPEC_EPS,
         'ihs_flow'          => $value >= 3.5 - SPEC_EPS,
+        'valve_slide'       => abs($value) <= VALVE_SLIDE_MAX + SPEC_EPS,
         default             => true,
     };
     return $ok ? 'ok' : 'bad';
