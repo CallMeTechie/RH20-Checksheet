@@ -135,7 +135,6 @@ function translations(): array
             'section_shaft_meas' => '2. Readings per shaft (A–T)',
             'th_shaft'           => 'Shaft',
             'th_overall'         => 'Overall',
-            'th_remarks'         => 'Remarks',
             'ref_shaft_tooltip'  => 'Reference shaft: the Internal Head Sensor is calibrated here',
             'entry_hint'         => 'Entry runs column by column: Enter steps from A through T within one column, then jumps to the top of the next. Vacuum Pressure accepts values with or without a minus sign (−88 and 88 are treated alike); the decimal separator may be a point or a comma. Internal Head Sensor Pressure: shaft %s is the reference shaft, calibrated to %d kPa (tolerance ± %s kPa). All other shafts are acceptable up to ± %s kPa; beyond ± %s kPa deviation the value is flagged as borderline in yellow.',
 
@@ -164,8 +163,6 @@ function translations(): array
             'report_title'       => 'Inspection Record #%d',
             'report_heading'     => 'RH20 Head Inspection Report',
             'report_shaft_table' => 'Readings per shaft (A–T)',
-            'footnote_shaft'     => 'Shaft %s:',
-            'footnote_ref'       => 'see %d',
 
             // --- Fehlerseiten ---
             'not_found'          => 'Inspection not found.',
@@ -223,7 +220,6 @@ function translations(): array
             'section_shaft_meas' => '2. Messwerte je Shaft (A–T)',
             'th_shaft'           => 'Shaft',
             'th_overall'         => 'Overall',
-            'th_remarks'         => 'Remarks',
             'ref_shaft_tooltip'  => 'Referenz-Shaft: hier wird der Internal Head Sensor eingemessen',
             'entry_hint'         => 'Eingabe erfolgt spaltenweise: Enter läuft erst A → T einer Spalte durch, dann springt es an den Anfang der nächsten Spalte. Vacuum Pressure akzeptiert Werte mit oder ohne Minuszeichen (−88 und 88 werden gleich behandelt), Dezimaltrennzeichen darf Punkt oder Komma sein. Internal Head Sensor Pressure: Shaft %s ist der Referenz-Shaft, an dem auf %d kPa eingemessen wird (Toleranz ± %s kPa). Für alle übrigen Shafts sind bis ± %s kPa zulässig; ab mehr als ± %s kPa Abweichung wird der Wert als grenzwertig gelb markiert.',
 
@@ -249,8 +245,6 @@ function translations(): array
             'report_title'       => 'Prüfprotokoll #%d',
             'report_heading'     => 'RH20 Head Inspection Report',
             'report_shaft_table' => 'Messwerte je Shaft (A–T)',
-            'footnote_shaft'     => 'Shaft %s:',
-            'footnote_ref'       => 'siehe %d',
 
             'not_found'          => 'Prüfung nicht gefunden.',
             'back_to_overview'   => 'Zurück zur Übersicht',

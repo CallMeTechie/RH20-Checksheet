@@ -346,41 +346,6 @@ function renderSummary(array $eval): string
          . '</div>';
 }
 
-/**
- * Bemerkungen bis zu dieser Länge stehen direkt in der Tabellenzeile. Längere
- * wandern in der Berichtsansicht als nummerierte Fußnote unter die Tabelle:
- * sonst wächst eine einzelne Tabellenzeile auf mehrere Textzeilen an und der
- * Ausdruck sprengt die zugesagten zwei A4-Seiten.
- */
-const REMARK_INLINE_MAX = 60;
-
-/**
- * Zeichenlänge eines UTF-8-Strings, ohne die mbstring-Erweiterung — die ist in
- * den PHP-Profilen der Synology nicht garantiert aktiv, die UTF-8-Unterstützung
- * von PCRE dagegen schon.
- */
-function textLength(string $s): int
-{
-    $len = preg_match_all('/./us', $s);
-    return $len === false ? strlen($s) : $len;
-}
-
-/**
- * Ordnet jedem Shaft mit langer Bemerkung eine Fußnotennummer zu.
- * Rückgabe: ['A' => 1, 'F' => 2, ...] in Shaft-Reihenfolge.
- */
-function remarkFootnotes(array $syringesByLetter): array
-{
-    $notes = [];
-    foreach (syringeLetters() as $letter) {
-        $text = trim((string)($syringesByLetter[$letter]['remarks'] ?? ''));
-        if ($text !== '' && textLength($text) > REMARK_INLINE_MAX) {
-            $notes[$letter] = count($notes) + 1;
-        }
-    }
-    return $notes;
-}
-
 function h(mixed $v): string
 {
     return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8');

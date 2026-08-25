@@ -26,7 +26,6 @@ $columns   = measurementColumns();
 $groups    = measurementGroups();
 $headMeas  = headMeasurements();
 $serial    = $insp['serial_number'] !== '' ? $insp['serial_number'] : '—';
-$footnotes = remarkFootnotes($byLetter);
 ?>
 <!DOCTYPE html>
 <html lang="<?= h(currentLang()) ?>">
@@ -102,7 +101,6 @@ $footnotes = remarkFootnotes($byLetter);
                         <th colspan="<?= (int)$span ?>"><?= h($group) ?></th>
                     <?php endforeach; ?>
                     <th rowspan="2" class="col-overall"><?= h(t('th_overall')) ?></th>
-                    <th rowspan="2" class="col-remarks"><?= h(t('th_remarks')) ?></th>
                 </tr>
                 <tr>
                     <?php foreach ($columns as $c): ?>
@@ -123,29 +121,11 @@ $footnotes = remarkFootnotes($byLetter);
                     <td class="mono <?= h(cellClass($val, $key, $letter)) ?>"><?= h(fmtCell($val)) ?></td>
                     <?php endforeach; ?>
                     <td class="col-overall result-<?= $res ?: 'blank' ?>"><?= $res ?: '—' ?></td>
-                    <td class="col-remarks remarks-text">
-                        <?php $rm = trim((string)($r['remarks'] ?? '')); ?>
-                        <?php if (isset($footnotes[$letter])): ?>
-                            <a class="fn-ref" href="#fn-<?= (int)$footnotes[$letter] ?>"><?= h(t('footnote_ref', $footnotes[$letter])) ?></a>
-                        <?php else: ?>
-                            <?= h($rm) ?>
-                        <?php endif; ?>
-                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
         </div>
-
-        <?php if ($footnotes): ?>
-        <!-- Lange Bemerkungen stehen hier, damit die Tabellenzeilen einzeilig bleiben -->
-        <ol class="footnotes">
-            <?php foreach ($footnotes as $letter => $no): ?>
-            <li id="fn-<?= (int)$no ?>" value="<?= (int)$no ?>"><strong><?= h(t('footnote_shaft', $letter)) ?></strong>
-                <?= h(trim((string)($byLetter[$letter]['remarks'] ?? ''))) ?></li>
-            <?php endforeach; ?>
-        </ol>
-        <?php endif; ?>
 
         <div class="legend">
             <span class="legend-ok"><span class="swatch swatch-ok"></span><?= h(t('legend_ok')) ?></span>

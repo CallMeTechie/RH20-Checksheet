@@ -204,7 +204,6 @@ table.spec tbody tr td.syringe { font-weight: 700; background: #EEF3F6; }
 /* Referenz-Shaft, an dem der Internal Head Sensor eingemessen wird */
 table.spec tbody tr td.syringe.ref-shaft { background: #DCE7EE; border-left: 3px solid var(--teal); }
 table.spec.compact { max-width: 640px; }
-.remarks-text { text-align: left; word-break: break-word; }
 
 /* Messwert-Eingabefelder: bewusst type=text (nicht type=number), damit
    Dezimaltrennzeichen (Punkt oder Komma) unabhängig von der Browser-Sprache
@@ -220,7 +219,6 @@ table.spec td input.autosave {
     background: #fff;
     color: var(--text);
 }
-table.spec td input.autosave.remarks { width: 100%; min-width: 130px; text-align: left; font-family: inherit; }
 table.spec td input.autosave:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
 
 /* Bewertung einer Messzelle — gilt für Eingabefeld (edit) und Textzelle (view) */
@@ -297,11 +295,6 @@ table.spec tbody tr td.result-blank { color: var(--muted); }
 .head-info .unit { font-weight: 400; font-size: 11px; color: var(--muted); }
 .head-info dd.ok, .head-info dd.warn, .head-info dd.bad { background: none; }
 
-/* Fußnoten für lange Bemerkungen (Berichtsansicht) */
-.footnotes { margin: 10px 0 0; padding-left: 20px; font-size: 11.5px; color: var(--text); }
-.footnotes li { margin-bottom: 3px; }
-.fn-ref { font-size: 11px; white-space: nowrap; }
-
 /* =========================================================================
    Druck — DIN A4 Querformat, höchstens zwei Seiten
 
@@ -352,7 +345,6 @@ table.spec tbody tr td.result-blank { color: var(--muted); }
     table.spec.grid { table-layout: fixed; width: 100%; }
     table.spec.grid .col-syringe { width: 3.5%; }
     table.spec.grid .col-overall { width: 6.5%; }
-    table.spec.grid .col-remarks { width: 15%; }
 
     table.spec th, table.spec td { border: .4pt solid #8A9AA6; padding: .35mm .8mm; font-size: 7.2pt; line-height: 1.15; }
     table.spec thead th { font-size: 6.2pt; letter-spacing: 0; padding: .6mm .8mm; line-height: 1.15; }
@@ -363,10 +355,6 @@ table.spec tbody tr td.result-blank { color: var(--muted); }
     table.spec thead { display: table-header-group; }
     table.spec tfoot { display: table-footer-group; }
     table.spec tr { break-inside: avoid; page-break-inside: avoid; }
-
-    .footnotes { font-size: 6.8pt; margin-top: 1.5mm; padding-left: 4mm; line-height: 1.25; }
-    .footnotes li { margin-bottom: .4mm; }
-    .fn-ref { font-size: 6.8pt; color: #000; text-decoration: none; }
 
     /* Im Ausdruck trägt nur die Overall-Spalte die grüne PASS-Markierung.
        Die Messwerte selbst bleiben ungefärbt; Gelb (grenzwertig) und Rot

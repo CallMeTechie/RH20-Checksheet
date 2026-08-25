@@ -80,11 +80,7 @@ try {
         if (!in_array($letter, syringeLetters(), true)) {
             fail(400, 'invalid_syringe');
         }
-        if ($field === 'remarks') {
-            $val = trim((string)$value);
-            $stmt = $pdo->prepare('UPDATE syringe_readings SET remarks = :v WHERE inspection_id = :id AND syringe = :sy');
-            $stmt->execute([':v' => ($val === '' ? null : $val), ':id' => $id, ':sy' => $letter]);
-        } elseif (in_array($field, $numericFields, true)) {
+        if (in_array($field, $numericFields, true)) {
             $num = numericOrFail($value);
             $stmt = $pdo->prepare("UPDATE syringe_readings SET {$field} = :v WHERE inspection_id = :id AND syringe = :sy");
             $stmt->execute([':v' => $num, ':id' => $id, ':sy' => $letter]);

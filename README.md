@@ -107,11 +107,6 @@ Block zusammen und rutscht nur dann komplett auf Seite 2, wenn sie auf Seite 1
 nicht mehr passt. Reißt die Messtabelle über den Seitenrand, wird ihr
 Tabellenkopf auf der Folgeseite wiederholt und keine Zeile aufgetrennt.
 
-Damit die Tabellenzeilen einzeilig bleiben, wandern **Bemerkungen mit mehr als
-60 Zeichen** als nummerierte Fußnote unter die Tabelle; in der Zeile steht dann
-„siehe 1". Erst bei extrem langen Bemerkungen (rund 500 Zeichen auf allen 20
-Shafts) wird eine dritte Seite nötig.
-
 ## 5. Prüfkriterien (Referenz)
 
 | Test | Ort | Standard |
