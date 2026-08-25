@@ -135,6 +135,8 @@ function numericInputState(mixed $v): string
  * Wert mehr Nachkommastellen, wird er ungekürzt ausgegeben. Ein rundendes
  * number_format($v, 2) würde aus -0.064 die Anzeige -0.06 machen — ein Wert, der laut
  * Spaltenkopf in der Toleranz liegt, in einer rot eingefärbten Zelle.
+ * Die Nicht-Rundung gilt bis drei Nachkommastellen; für $decimals > 3 wird eine
+ * bereits auf drei Stellen kollabierte Zahl aufgefüllt.
  */
 function fmtNum(?float $v, ?int $decimals = null): string
 {
