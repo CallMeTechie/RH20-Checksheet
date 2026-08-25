@@ -340,8 +340,9 @@ table.spec tbody tr td.result-blank { color: var(--muted); }
     .head-info dt { font-size: 6.5pt; }
     .head-info dd { font-size: 9pt; }
 
-    /* Feste Spaltenbreiten, damit die 12 Spalten die 297 mm sauber ausfüllen
-       und nicht je nach Inhalt unterschiedlich breit ausfallen. */
+    /* Feste Spaltenbreiten, damit die 12 Spalten (Shaft + 10 Messspalten + Overall)
+       die 297 mm sauber ausfüllen und nicht je nach Inhalt unterschiedlich breit
+       ausfallen. */
     table.spec.grid { table-layout: fixed; width: 100%; }
     table.spec.grid .col-syringe { width: 3.5%; }
     table.spec.grid .col-overall { width: 6.5%; }
