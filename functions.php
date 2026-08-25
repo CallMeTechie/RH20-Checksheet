@@ -128,15 +128,26 @@ function numericInputState(mixed $v): string
     return preg_match('/^[+-]?(\d+(\.\d*)?|\.\d+)$/', $s) ? 'ok' : 'invalid';
 }
 
-/** Zahl fürs Anzeigen/Eingabefeld formatieren (Punkt als Trennzeichen), leer wenn NULL. */
-function fmtNum(?float $v): string
+/**
+ * Zahl fürs Anzeigen/Eingabefeld formatieren (Punkt als Trennzeichen), leer wenn NULL.
+ *
+ * $decimals füllt auf eine feste Stellenzahl auf, rundet aber nie: hat der gespeicherte
+ * Wert mehr Nachkommastellen, wird er ungekürzt ausgegeben. Ein rundendes
+ * number_format($v, 2) würde aus -0.064 die Anzeige -0.06 machen — ein Wert, der laut
+ * Spaltenkopf in der Toleranz liegt, in einer rot eingefärbten Zelle.
+ */
+function fmtNum(?float $v, ?int $decimals = null): string
 {
     if ($v === null) return '';
     // 3 Nachkommastellen: genau genug für jedes Messgerät im Prüfablauf und
     // verlustfrei genug, dass ein erneutes Speichern den Wert nicht rundet.
     $s = rtrim(rtrim(number_format($v, 3, '.', ''), '0'), '.');
-    if ($s === '' || $s === '-' || $s === '-0') return '0';
-    return $s;
+    if ($s === '' || $s === '-' || $s === '-0') $s = '0';
+    if ($decimals === null) return $s;
+
+    $dot  = strpos($s, '.');
+    $frac = $dot === false ? 0 : strlen($s) - $dot - 1;
+    return $frac >= $decimals ? $s : number_format((float)$s, $decimals, '.', '');
 }
 
 /**
@@ -148,9 +159,9 @@ function fmtNum(?float $v): string
  * nicht erfassten. Bei Drücken und Durchflüssen fiel das nie auf, beim
  * Repeated-sliding-Test ist 0.00 der Normalfall.
  */
-function fmtCell(?float $v): string
+function fmtCell(?float $v, ?int $decimals = null): string
 {
-    return $v === null ? '—' : fmtNum($v);
+    return $v === null ? '—' : fmtNum($v, $decimals);
 }
 
 /**
