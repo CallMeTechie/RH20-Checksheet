@@ -202,8 +202,8 @@ Z-Achsen falsch justiert ist.
 
 ## 9. Migration bestehender Datenbanken
 
-Beide Umstellungen laufen beim ersten Aufruf automatisch und ohne Datenverlust;
-sie können gefahrlos mehrfach ausgeführt werden.
+Alle folgenden Umstellungen laufen beim ersten Aufruf automatisch und ohne
+Datenverlust; sie können gefahrlos mehrfach ausgeführt werden.
 
 1. **Eine Vacuum-Spalte → Z1/Z2:** Die neuen Spalten werden ergänzt und die
    bisherigen Werte als Z1 übernommen. Z2 ist danach leer und nachzutragen.

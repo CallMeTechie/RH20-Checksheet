@@ -9,8 +9,16 @@ t_is('-0.14 deutlich außen',   specState('valve_slide', -0.14), 'bad');
 
 // Absicherung gegen einen stillen Ausfall: specState() hat einen default => true-Zweig.
 // Fehlt der match-Zweig, liefert jeder Wert 'ok' — und die Realdaten (alle 0.00) würden
-// das nicht auffallen lassen.
-t_is('vergessener match-Zweig fiele hier auf', specState('valve_slide', 0.09), 'bad');
+// das nicht auffallen lassen. Spec §10.3 nennt zwei Fälle für dieses Kriterium; der erste
+// steht schon oben als "0.09 knapp darüber" — hier der zweite, damit die Zeile eigene
+// Abdeckung trägt statt die obige zu wiederholen.
+t_is('vergessener match-Zweig fiele hier auf', specState('valve_slide', -0.14), 'bad');
+
+// Diese beiden Fälle sichern nicht das Ergebnis, sondern das Vergleichsverfahren ab.
+// Ohne SPEC_EPS schlägt der erste fehl, mit Hundertstel-Rundung (round($v*100) <= 8,
+// von Spec §4 ausdrücklich verworfen) der zweite.
+t_is('Epsilon-Vergleich an der Grenze', specState('valve_slide', 0.8 * 0.1), 'ok');
+t_is('kein Runden auf Hundertstel',     specState('valve_slide', 0.084),     'bad');
 
 // --- Spaltenaufbau ---
 $cols = measurementColumns();
