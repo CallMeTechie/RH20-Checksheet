@@ -133,7 +133,6 @@ $headMeas = headMeasurements();
                         <th colspan="<?= (int)$span ?>"><?= h($group) ?></th>
                     <?php endforeach; ?>
                     <th rowspan="2" class="col-overall"><?= h(t('th_overall')) ?></th>
-                    <th rowspan="2" class="col-remarks"><?= h(t('th_remarks')) ?></th>
                 </tr>
                 <tr>
                     <?php foreach ($columns as $c): ?>
@@ -162,13 +161,6 @@ $headMeas = headMeasurements();
                     </td>
                     <?php endforeach; ?>
                     <td id="overall-<?= h($letter) ?>" class="col-overall result-<?= $res ?: 'blank' ?>"><?= $res ?: '—' ?></td>
-                    <td class="col-remarks">
-                        <input type="text" class="autosave remarks"
-                               aria-label="<?= h(t('th_remarks') . ' ' . t('th_shaft') . ' ' . $letter) ?>"
-                               data-scope="syringe" data-field="remarks"
-                               data-syringe="<?= h($letter) ?>" data-row="<?= (int)$row ?>"
-                               value="<?= h($r['remarks'] ?? '') ?>">
-                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

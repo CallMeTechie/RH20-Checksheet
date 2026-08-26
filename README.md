@@ -107,11 +107,6 @@ Block zusammen und rutscht nur dann komplett auf Seite 2, wenn sie auf Seite 1
 nicht mehr passt. Reißt die Messtabelle über den Seitenrand, wird ihr
 Tabellenkopf auf der Folgeseite wiederholt und keine Zeile aufgetrennt.
 
-Damit die Tabellenzeilen einzeilig bleiben, wandern **Bemerkungen mit mehr als
-60 Zeichen** als nummerierte Fußnote unter die Tabelle; in der Zeile steht dann
-„siehe 1". Erst bei extrem langen Bemerkungen (rund 500 Zeichen auf allen 20
-Shafts) wird eine dritte Seite nötig.
-
 ## 5. Prüfkriterien (Referenz)
 
 | Test | Ort | Standard |
@@ -128,6 +123,7 @@ Shafts) wird eine dritte Seite nötig.
 | Vacuum Break Down – Flow Rate | Nozzle Tip | ≥ 0.5 L/min |
 | Nozzle Cleaning – Pressure | Nozzle Tip | ≥ 100 kPa (mit 100 vorbelegt, siehe unten) |
 | Nozzle Cleaning – Flow Rate | Nozzle Tip | ≥ 0.8 L/min |
+| **Valve Air Stick – Repeated Sliding** | je Shaft, Messuhr | \|Wert\| ≤ 0.08 mm |
 
 **Vorbelegung Nozzle Cleaning Pressure:** Neue Prüfungen starten mit 100 kPa in
 allen 20 Shafts. Das Messinstrument zeigt nicht mehr als 100 kPa an, der reale
@@ -188,6 +184,7 @@ rh20-inspection/
 ├── db.php                   DB-Verbindung, Schema und Migrationen (SQLite)
 ├── functions.php             Grenzwert-/PASS-WARN-FAIL-Logik, Spaltendefinition
 ├── lang.php                   Übersetzungen EN/DE, Sprachwahl (Standard Englisch)
+├── tests/                      abhängigkeitsfreie Tests, Aufruf: php tests/run.php
 ├── icons.php                  SVG-Icon-Set + Icon-Button-Helfer
 ├── assets/style.css            Layout (Bildschirm + Druck)
 ├── assets/app.js                Auto-Save + Enter-Tastatur-Navigation
@@ -205,8 +202,8 @@ Z-Achsen falsch justiert ist.
 
 ## 9. Migration bestehender Datenbanken
 
-Beide Umstellungen laufen beim ersten Aufruf automatisch und ohne Datenverlust;
-sie können gefahrlos mehrfach ausgeführt werden.
+Alle folgenden Umstellungen laufen beim ersten Aufruf automatisch und ohne
+Datenverlust; sie können gefahrlos mehrfach ausgeführt werden.
 
 1. **Eine Vacuum-Spalte → Z1/Z2:** Die neuen Spalten werden ergänzt und die
    bisherigen Werte als Z1 übernommen. Z2 ist danach leer und nachzutragen.
@@ -219,6 +216,12 @@ sie können gefahrlos mehrfach ausgeführt werden.
 3. **Contact Detection Pressure kam hinzu:** Die Spalte wird auf Prüfungsebene
    ergänzt und ist für bestehende Prüfungen leer. Diese stehen dadurch so lange
    auf INCOMPLETE, bis der Wert nachgetragen ist — kein Messwert geht verloren.
+
+4. **Valve Air Stick kam hinzu:** Die Spalte `valve_slide` wird in den Shaft-Zeilen
+   ergänzt und ist für bestehende Prüfungen leer. Diese stehen dadurch so lange auf
+   INCOMPLETE, bis die 20 Werte nachgetragen sind — kein Messwert geht verloren. Die
+   Bemerkungsspalte entfällt in der Oberfläche; die Datenbankspalte `remarks` bleibt
+   unangetastet stehen und wird nicht mehr gelesen.
 
 Vor dem Update der Dateien empfiehlt sich trotzdem eine Kopie von
 `data/inspections.sqlite`.

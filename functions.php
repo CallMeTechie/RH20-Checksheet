@@ -28,6 +28,14 @@ const IHS_REF_SHAFT  = 'A';   // Shaft, an dem eingemessen wird
 const CONTACT_TARGET = 70.0;
 const CONTACT_TOL    = 4.0;
 
+/* ---------------------------------------------------------------------------
+ * Valve Air Stick — Repeated sliding test. Gemessen wird je Shaft, wie stark die
+ * Rückkehrposition des Valve Air nach zehn Durchgängen streut. Bewertet wird der
+ * Betrag; die Toleranz ist symmetrisch, das Vorzeichen wird nur mitgeschrieben,
+ * weil die Messuhr es anzeigt. 0.00 ist der Normalfall, nicht die Ausnahme.
+ * ------------------------------------------------------------------------- */
+const VALVE_SLIDE_MAX = 0.08;  // mm, Betrag, Grenze eingeschlossen
+
 /**
  * Vorbelegung für Nozzle Cleaning Pressure. Das Messinstrument zeigt maximal
  * 100 kPa an, der reale Druck liegt deutlich höher — der Wert ist deshalb in
@@ -67,6 +75,8 @@ function measurementColumns(): array
         'vacbreak_flow'     => ['group' => 'Vacuum Break Down', 'label' => 'Flow (L/min)',   'spec' => '≥ 0.5'],
         'clean_pressure'    => ['group' => 'Nozzle Cleaning',   'label' => 'Pressure (kPa)', 'spec' => '≥ 100'],
         'clean_flow'        => ['group' => 'Nozzle Cleaning',   'label' => 'Flow (L/min)',   'spec' => '≥ 0.8'],
+        'valve_slide' => ['group' => 'Valve Air Stick', 'label' => 'Repeated Sliding (mm)',
+                          'spec'  => '|Wert| ≤ 0.08', 'decimals' => 2],
     ];
 }
 
@@ -128,15 +138,42 @@ function numericInputState(mixed $v): string
     return preg_match('/^[+-]?(\d+(\.\d*)?|\.\d+)$/', $s) ? 'ok' : 'invalid';
 }
 
-/** Zahl fürs Anzeigen/Eingabefeld formatieren (Punkt als Trennzeichen), leer wenn NULL. */
-function fmtNum(?float $v): string
+/**
+ * Zahl fürs Anzeigen/Eingabefeld formatieren (Punkt als Trennzeichen), leer wenn NULL.
+ *
+ * $decimals füllt auf eine feste Stellenzahl auf, rundet aber nie: hat der gespeicherte
+ * Wert mehr Nachkommastellen, wird er ungekürzt ausgegeben. Ein rundendes
+ * number_format($v, 2) würde aus -0.064 die Anzeige -0.06 machen — ein Wert, der laut
+ * Spaltenkopf in der Toleranz liegt, in einer rot eingefärbten Zelle.
+ * Die Nicht-Rundung gilt bis drei Nachkommastellen; für $decimals > 3 wird eine
+ * bereits auf drei Stellen kollabierte Zahl aufgefüllt.
+ */
+function fmtNum(?float $v, ?int $decimals = null): string
 {
     if ($v === null) return '';
     // 3 Nachkommastellen: genau genug für jedes Messgerät im Prüfablauf und
     // verlustfrei genug, dass ein erneutes Speichern den Wert nicht rundet.
     $s = rtrim(rtrim(number_format($v, 3, '.', ''), '0'), '.');
-    if ($s === '' || $s === '-' || $s === '-0') return '0';
-    return $s;
+    if ($s === '' || $s === '-' || $s === '-0') $s = '0';
+    if ($decimals === null) return $s;
+
+    $dot  = strpos($s, '.');
+    $frac = $dot === false ? 0 : strlen($s) - $dot - 1;
+    return $frac >= $decimals ? $s : number_format((float)$s, $decimals, '.', '');
+}
+
+/**
+ * Anzeigetext einer Messzelle: der formatierte Wert, oder '—' wenn nicht erfasst.
+ *
+ * Bewusst eine eigene Funktion und keine Prüfung im Template: `fmtNum(0.0)` liefert
+ * den String '0', und '0' ist in PHP falsy. Ein `h(fmtNum($v)) ?: '—'` im Template
+ * zeigt deshalb für einen gemessenen Nullwert dasselbe Zeichen wie für einen gar
+ * nicht erfassten. Bei Drücken und Durchflüssen fiel das nie auf, beim
+ * Repeated-sliding-Test ist 0.00 der Normalfall.
+ */
+function fmtCell(?float $v, ?int $decimals = null): string
+{
+    return $v === null ? '—' : fmtNum($v, $decimals);
 }
 
 /**
@@ -175,6 +212,7 @@ function specState(string $field, float $value, string $syringe = ''): string
         'clean_pressure'    => $value >= 100 - SPEC_EPS,
         'clean_flow'        => $value >= 0.8 - SPEC_EPS,
         'ihs_flow'          => $value >= 3.5 - SPEC_EPS,
+        'valve_slide'       => abs($value) <= VALVE_SLIDE_MAX + SPEC_EPS,
         default             => true,
     };
     return $ok ? 'ok' : 'bad';
@@ -317,41 +355,6 @@ function renderSummary(array $eval): string
          . '<ul class="summary-counts">' . $counts . '</ul>'
          . '<div class="summary-total">' . h(t('shafts_total', (int)$eval['total'])) . '</div>'
          . '</div>';
-}
-
-/**
- * Bemerkungen bis zu dieser Länge stehen direkt in der Tabellenzeile. Längere
- * wandern in der Berichtsansicht als nummerierte Fußnote unter die Tabelle:
- * sonst wächst eine einzelne Tabellenzeile auf mehrere Textzeilen an und der
- * Ausdruck sprengt die zugesagten zwei A4-Seiten.
- */
-const REMARK_INLINE_MAX = 60;
-
-/**
- * Zeichenlänge eines UTF-8-Strings, ohne die mbstring-Erweiterung — die ist in
- * den PHP-Profilen der Synology nicht garantiert aktiv, die UTF-8-Unterstützung
- * von PCRE dagegen schon.
- */
-function textLength(string $s): int
-{
-    $len = preg_match_all('/./us', $s);
-    return $len === false ? strlen($s) : $len;
-}
-
-/**
- * Ordnet jedem Shaft mit langer Bemerkung eine Fußnotennummer zu.
- * Rückgabe: ['A' => 1, 'F' => 2, ...] in Shaft-Reihenfolge.
- */
-function remarkFootnotes(array $syringesByLetter): array
-{
-    $notes = [];
-    foreach (syringeLetters() as $letter) {
-        $text = trim((string)($syringesByLetter[$letter]['remarks'] ?? ''));
-        if ($text !== '' && textLength($text) > REMARK_INLINE_MAX) {
-            $notes[$letter] = count($notes) + 1;
-        }
-    }
-    return $notes;
 }
 
 function h(mixed $v): string

@@ -30,8 +30,7 @@ if (!$stmtInsp->fetch()) {
     fail(404, 'not_found');
 }
 
-// Messfelder einer Syringe-Zeile: ihs_pressure, vac_pressure_z1/_z2,
-// vac_flow_z1/_z2, vacbreak_*, clean_* (siehe measurementColumns()).
+// Messfelder einer Syringe-Zeile: siehe measurementColumns().
 $numericFields = syringeFields();
 
 /**
@@ -80,11 +79,7 @@ try {
         if (!in_array($letter, syringeLetters(), true)) {
             fail(400, 'invalid_syringe');
         }
-        if ($field === 'remarks') {
-            $val = trim((string)$value);
-            $stmt = $pdo->prepare('UPDATE syringe_readings SET remarks = :v WHERE inspection_id = :id AND syringe = :sy');
-            $stmt->execute([':v' => ($val === '' ? null : $val), ':id' => $id, ':sy' => $letter]);
-        } elseif (in_array($field, $numericFields, true)) {
+        if (in_array($field, $numericFields, true)) {
             $num = numericOrFail($value);
             $stmt = $pdo->prepare("UPDATE syringe_readings SET {$field} = :v WHERE inspection_id = :id AND syringe = :sy");
             $stmt->execute([':v' => $num, ':id' => $id, ':sy' => $letter]);
@@ -135,8 +130,10 @@ if ($scope === 'syringe') {
     $response['row_result'] = evaluateSyringe($row, $letter);
     $response['syringe']    = $letter;
     $response['field']      = $field;
-    // 'value' und 'cell_class' nur für Messfelder — bei den Bemerkungen würde
-    // ein zurückgespielter Zahlenwert den eingegebenen Text überschreiben.
+    // Die Prüfung ist hier defensiv, nicht tragend: scope=syringe akzeptiert
+    // ohnehin nur Felder aus $numericFields, alles andere scheitert oben schon
+    // mit 400. Der eigentliche Grund für die Fallunterscheidung ist der
+    // head-Zweig unten, der Value/Class eigenständig behandelt.
     if (in_array($field, $numericFields, true)) {
         $num = ($row[$field] ?? null) !== null ? (float)$row[$field] : null;
         $response['cell_class'] = cellClass($num, $field, $letter);

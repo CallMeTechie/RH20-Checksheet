@@ -52,6 +52,7 @@ $pdo->exec("
         vacbreak_flow      REAL,
         clean_pressure     REAL,
         clean_flow         REAL,
+        valve_slide        REAL,
         remarks            TEXT,
         FOREIGN KEY (inspection_id) REFERENCES inspections(id) ON DELETE CASCADE
     )
@@ -93,6 +94,16 @@ if (!in_array('ihs_pressure', $syringeCols, true)) {
 $inspCols = array_column($pdo->query('PRAGMA table_info(inspections)')->fetchAll(), 'name');
 if (!in_array('contact_pressure', $inspCols, true)) {
     $pdo->exec('ALTER TABLE inspections ADD COLUMN contact_pressure REAL');
+}
+
+// Migration 4: Valve Air Stick (Repeated sliding test) kam später dazu und wird je
+// Shaft gemessen. Bestehende Prüfungen bekommen die Spalte leer und gelten damit als
+// unvollständig, bis die 20 Werte nachgetragen sind — es geht nichts verloren.
+// $syringeCols stammt aus dem PRAGMA-Aufruf oberhalb von Migration 1; nach den
+// vorherigen ALTER-Anweisungen ist die Liste nicht mehr aktuell, deshalb neu einlesen.
+$syringeCols = array_column($pdo->query('PRAGMA table_info(syringe_readings)')->fetchAll(), 'name');
+if (!in_array('valve_slide', $syringeCols, true)) {
+    $pdo->exec('ALTER TABLE syringe_readings ADD COLUMN valve_slide REAL');
 }
 
 $pdo->exec("CREATE INDEX IF NOT EXISTS idx_syringe_inspection ON syringe_readings(inspection_id)");

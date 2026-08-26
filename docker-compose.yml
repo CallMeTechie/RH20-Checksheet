@@ -3,7 +3,7 @@
 services:
   rh20-inspection:
     # Vorgebautes Image; nach `docker load` liegt es unter diesem Namen vor.
-    image: rh20-inspection:1.1.2
+    image: rh20-inspection:1.3.0
     container_name: rh20-inspection
     restart: unless-stopped
 

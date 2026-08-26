@@ -8,7 +8,6 @@
  * Die Spaltenreihenfolge kommt aus data-field-order am <body> und stammt damit
  * aus measurementColumns() in functions.php — sie kann hier nicht auseinanderlaufen.
  *
- * Remarks-Spalte läuft unabhängig vertikal (A..T), nicht Teil der Hauptkette.
  * Jedes Feld speichert automatisch beim Verlassen (blur), sofern es sich
  * geändert hat. Enter speichert und springt zusätzlich zum nächsten Feld.
  */
@@ -196,13 +195,6 @@
             var h = HEAD_CHAIN.indexOf(field);
             if (h >= 0 && h < HEAD_CHAIN.length - 1) return findHeadField(HEAD_CHAIN[h + 1]);
             return findGridField(GRID_FIELD_ORDER[0], 0);
-        }
-
-        if (scope === 'syringe' && field === 'remarks') {
-            row = parseInt(el.dataset.row, 10);
-            return row < LAST_ROW
-                ? document.querySelector('[data-scope="syringe"][data-field="remarks"][data-row="' + (row + 1) + '"]')
-                : null; // Ende der Remarks-Spalte
         }
 
         if (scope === 'syringe') {
