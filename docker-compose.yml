@@ -2,8 +2,10 @@
 # als "Projekt" importierbar, oder per `docker compose up -d` über SSH.
 services:
   rh20-inspection:
-    # Vorgebautes Image; nach `docker load` liegt es unter diesem Namen vor.
-    image: rh20-inspection:1.3.0
+    # Vorgebautes Image. Entweder aus der Registry beziehen oder — auf einem
+    # Rechner ohne Internetzugang — die Image-Datei aus dem GitHub-Release
+    # herunterladen und mit `docker load` einspielen; sie trägt denselben Namen.
+    image: ghcr.io/callmetechie/rh20-checksheet:1.3.0
     container_name: rh20-inspection
     restart: unless-stopped
 

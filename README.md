@@ -18,8 +18,11 @@ es gibt keinen „Speichern"-Button.**
 
 > **Alternativ als Container:** Das Repository enthält ein `Dockerfile` und eine
 > `docker-compose.yml` für den Betrieb als Container (z. B. im Container Manager
-> einer Synology). Die folgende Anleitung beschreibt die Installation direkt
-> unter Web Station.
+> einer Synology). Ein fertiges Image liegt unter
+> `ghcr.io/callmetechie/rh20-checksheet`; für Systeme **ohne Internetzugang**
+> hängt jedem Release eine ladbare Image-Datei an —
+> siehe [`docs/OFFLINE-INSTALL.md`](docs/OFFLINE-INSTALL.md). Die folgende
+> Anleitung beschreibt die Installation direkt unter Web Station.
 
 ## 2. Installation
 
