@@ -32,15 +32,38 @@ Erwartet: `rh20-checksheet-1.3.0-image.tar.gz: OK`
 ## 3. Image einspielen
 
 **Container Manager → Abbild → Aktion → Importieren → Von Datei hinzufügen**,
-die `.tar.gz` auswählen. Danach muss unter **Abbild** genau dieser Eintrag
-stehen:
+die `.tar.gz` auswählen.
+
+**Danach unbedingt den Namen prüfen.** Unter **Abbild** muss genau das stehen:
 
 ```
 ghcr.io/callmetechie/rh20-checksheet    1.3.0
 ```
 
-Steht dort ein anderer Name oder `<none>`, ist der Import schiefgegangen —
-dann den Weg über SSH nehmen (Abschnitt 4b).
+Steht dort stattdessen der **Dateiname** (`rh20-checksheet-1.3.0-image.tar.gz`)
+oder `<none>`, hat der Importer die Metadaten nicht gelesen. Dann findet
+anschließend nichts das Image unter dem erwarteten Namen — Compose und der
+Container Manager versuchen stattdessen, es aus dem Internet zu laden, was ohne
+Internetzugang in einen Timeout läuft.
+
+Abhilfe in diesem Fall, über SSH:
+
+```
+# tatsächlichen Namen und ID anzeigen
+sudo /usr/local/bin/docker images
+
+# unter dem erwarteten Namen zusätzlich eintragen (ID aus der Liste oben)
+sudo /usr/local/bin/docker tag <IMAGE-ID> ghcr.io/callmetechie/rh20-checksheet:1.3.0
+```
+
+Ein `docker tag` kopiert nichts, es vergibt nur einen zweiten Namen für
+dasselbe Image — kostet keinen Speicher und ist sofort fertig.
+
+> **Zum Archivformat:** Die Image-Datei dieses Releases wird bewusst im
+> klassischen Docker-Format erzeugt (`<layer-id>/layer.tar`), nicht im
+> neueren OCI-Layout (`blobs/sha256/…`). Neuere Docker-Versionen schreiben
+> standardmäßig OCI; damit kam der Importer des Container Managers in einem
+> Fall nicht zurecht und benannte das Abbild nach der Datei.
 
 ## 4. Container anlegen
 
