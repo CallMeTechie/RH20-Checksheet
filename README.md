@@ -31,7 +31,7 @@ docker run -d --name rh20-checksheet -p 8090:80 \
   -v /volume1/docker/rh20-checksheet/data:/var/www/html/data \
   -e TZ=Europe/Berlin -e PUID=1000 -e PGID=1000 \
   --restart unless-stopped \
-  ghcr.io/callmetechie/rh20-checksheet:1.3.0
+  ghcr.io/callmetechie/rh20-checksheet:1.3.1
 ```
 
 Oder mit der `docker-compose.yml` aus diesem Repository:

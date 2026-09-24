@@ -6,8 +6,8 @@ dann auf das Zielsystem übertragen.
 
 | Datei | Zweck |
 |---|---|
-| `rh20-checksheet-1.3.0-image.tar.gz` | Das fertige Container-Image (164 MB) |
-| `rh20-checksheet-1.3.0-image.tar.gz.sha256` | Prüfsumme dazu |
+| `rh20-checksheet-1.3.1-image.tar.gz` | Das fertige Container-Image (164 MB) |
+| `rh20-checksheet-1.3.1-image.tar.gz.sha256` | Prüfsumme dazu |
 | `docker-compose.yml` | Startkonfiguration |
 
 Das Image ist für **linux/amd64** gebaut — passend für Synology-Modelle mit
@@ -19,10 +19,10 @@ läuft es nicht.
 Nach dem Herunterladen, noch auf dem Rechner mit Internet:
 
 ```
-sha256sum -c rh20-checksheet-1.3.0-image.tar.gz.sha256
+sha256sum -c rh20-checksheet-1.3.1-image.tar.gz.sha256
 ```
 
-Erwartet: `rh20-checksheet-1.3.0-image.tar.gz: OK`
+Erwartet: `rh20-checksheet-1.3.1-image.tar.gz: OK`
 
 ## 2. Auf die NAS übertragen
 
@@ -40,7 +40,7 @@ die `.tar.gz` auswählen.
 ghcr.io/callmetechie/rh20-checksheet    1.3.0
 ```
 
-Steht dort stattdessen der **Dateiname** (`rh20-checksheet-1.3.0-image.tar.gz`)
+Steht dort stattdessen der **Dateiname** (`rh20-checksheet-1.3.1-image.tar.gz`)
 oder `<none>`, hat der Importer die Metadaten nicht gelesen. Dann findet
 anschließend nichts das Image unter dem erwarteten Namen — Compose und der
 Container Manager versuchen stattdessen, es aus dem Internet zu laden, was ohne
@@ -53,7 +53,7 @@ Abhilfe in diesem Fall, über SSH:
 sudo /usr/local/bin/docker images
 
 # unter dem erwarteten Namen zusätzlich eintragen (ID aus der Liste oben)
-sudo /usr/local/bin/docker tag <IMAGE-ID> ghcr.io/callmetechie/rh20-checksheet:1.3.0
+sudo /usr/local/bin/docker tag <IMAGE-ID> ghcr.io/callmetechie/rh20-checksheet:1.3.1
 ```
 
 Ein `docker tag` kopiert nichts, es vergibt nur einen zweiten Namen für
@@ -93,14 +93,14 @@ vorhandenen Abbild ausgeht. Er braucht die `docker-compose.yml` nicht.
 ### 4b. Über SSH
 
 ```
-sudo /usr/local/bin/docker load -i /volume1/docker/rh20-checksheet-1.3.0-image.tar.gz
+sudo /usr/local/bin/docker load -i /volume1/docker/rh20-checksheet-1.3.1-image.tar.gz
 
 sudo /usr/local/bin/docker run -d --name rh20-checksheet \
   -p 8090:80 \
   -v /volume1/docker/rh20-checksheet/data:/var/www/html/data \
   -e TZ=Europe/Berlin -e PUID=1026 -e PGID=100 \
   --restart unless-stopped \
-  ghcr.io/callmetechie/rh20-checksheet:1.3.0
+  ghcr.io/callmetechie/rh20-checksheet:1.3.1
 ```
 
 `PUID`/`PGID` vorher ermitteln mit
