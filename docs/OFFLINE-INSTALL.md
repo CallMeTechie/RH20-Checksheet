@@ -50,6 +50,31 @@ cd /volume1/docker/rh20-checksheet && sudo /usr/local/bin/docker compose up -d
 Auf Synology liegt das Docker-Binary unter `/usr/local/bin/docker` und ist
 nicht im `PATH` von `sudo` — daher der vollständige Pfad.
 
+## 3c. Wenn der Container Manager trotzdem zu laden versucht
+
+Die mitgelieferte `docker-compose.yml` enthält `pull_policy: missing` — damit
+greift Compose nur dann auf eine Registry zu, wenn das Image lokal fehlt. Ohne
+diese Zeile versucht der Container Manager bei **jedem** Anlegen oder
+Aktualisieren eines Projekts einen Registry-Zugriff und läuft ohne Internet in
+einen Timeout.
+
+Für ein streng abgeschottetes System die Zeile auf
+
+```yaml
+    pull_policy: never
+```
+
+ändern. Dann wird nie gezogen; fehlt das Image, meldet Compose das sofort,
+statt auf einen Timeout zu warten.
+
+Meldet der Container Manager weiterhin einen Ladeversuch, prüfen:
+
+- Wurde das Image **vor** dem Anlegen des Projekts importiert? Unter
+  **Abbild** muss `ghcr.io/callmetechie/rh20-checksheet:1.3.0` gelistet sein.
+- Stimmt der Name in der `docker-compose.yml` **exakt** mit dem gelisteten
+  Abbild überein, einschließlich Tag? Eine Abweichung um ein Zeichen führt zum
+  Ladeversuch.
+
 ## 4. Vor dem ersten Start anpassen
 
 In der `docker-compose.yml`:
