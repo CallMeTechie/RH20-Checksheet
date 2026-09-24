@@ -35,6 +35,19 @@ if [ -n "$PUID" ]; then
     chown -R www-data:www-data /var/www/html/assets /var/www/html/*.php 2>/dev/null || true
 fi
 
+# Vollständigkeit der Anwendung prüfen. Ein unvollständig importiertes Image
+# liefert sonst die Seiten aus, während das Stylesheet fehlt — die Oberfläche
+# erscheint dann völlig unformatiert, ohne dass irgendwo ein Fehler auftaucht.
+for f in /var/www/html/index.php /var/www/html/assets/style.css /var/www/html/assets/app.js; do
+    if [ ! -s "$f" ]; then
+        echo "[rh20] FEHLER: $f fehlt oder ist leer." >&2
+        echo "[rh20] Das Image ist unvollständig — vermutlich ist der Import" >&2
+        echo "[rh20] fehlgeschlagen. Abbild entfernen und die Image-Datei aus" >&2
+        echo "[rh20] dem Release erneut einspielen." >&2
+        exit 1
+    fi
+done
+
 mkdir -p "$DATA_DIR"
 
 # Besitzverhältnisse nur anfassen, wenn der Webserver sonst nicht schreiben

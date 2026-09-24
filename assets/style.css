@@ -133,12 +133,22 @@ a { color: var(--teal); }
    Formular — das darf im Layout nicht als Block auftragen. */
 .inline-form { display: inline; margin: 0; }
 .text-btn {
-    -webkit-appearance: none; appearance: none;
-    border: none; background: none; cursor: pointer;
-    font: inherit; padding: 6px 0;
+    -webkit-appearance: none;
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    padding: 9px 16px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
 }
-.text-btn.primary { color: var(--teal); font-weight: 600; }
-.text-btn.primary:hover { text-decoration: underline; }
+.text-btn.primary { background: var(--teal); color: #fff; }
+.text-btn.primary:hover { background: #175A72; }
 
 /* ---------- Status pill ---------- */
 .pill {

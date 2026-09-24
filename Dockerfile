@@ -47,6 +47,14 @@ RUN chmod +x /usr/local/bin/rh20-entrypoint
 COPY --chown=www-data:www-data assets/ /var/www/html/assets/
 COPY --chown=www-data:www-data *.php README.md /var/www/html/
 
+# Abbruch, falls eine Anwendungsdatei fehlt oder leer ist. Greift beim Bauen;
+# die Prüfung beim Start steht im Entrypoint, weil ein unvollständig
+# importiertes Image sonst eine Seite ohne Stylesheet ausliefert, ohne dass ein
+# Fehler sichtbar wird.
+RUN test -s /var/www/html/assets/style.css \
+ && test -s /var/www/html/assets/app.js \
+ && test -s /var/www/html/index.php
+
 # Fallback, falls jemand ohne Volume startet: das Verzeichnis existiert dann
 # im Container und die App läuft (Daten sind allerdings flüchtig).
 RUN set -eux; \
