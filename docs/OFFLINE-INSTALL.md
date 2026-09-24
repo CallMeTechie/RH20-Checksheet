@@ -77,7 +77,7 @@ vorhandenen Abbild ausgeht. Er braucht die `docker-compose.yml` nicht.
 2. Containername: `rh20-checksheet`. **Automatischen Neustart aktivieren**
    anhaken.
 3. **Erweiterte Einstellungen → Port-Einstellungen:**
-   lokaler Port `8090` → Container-Port `80` (TCP).
+   lokaler Port `1020` → Container-Port `80` (TCP).
 4. **Speicherort / Volume:** *Ordner hinzufügen*, das vorbereitete
    Datenverzeichnis wählen, Mount-Pfad `/var/www/html/data`, Schreibrecht.
 5. **Umgebung:** drei Variablen setzen —
@@ -96,7 +96,7 @@ vorhandenen Abbild ausgeht. Er braucht die `docker-compose.yml` nicht.
 sudo /usr/local/bin/docker load -i /volume1/docker/rh20-checksheet-1.3.2-image.tar.gz
 
 sudo /usr/local/bin/docker run -d --name rh20-checksheet \
-  -p 8090:80 \
+  -p 1020:80 \
   -v /volume1/docker/rh20-checksheet/data:/var/www/html/data \
   -e TZ=Europe/Berlin -e PUID=1026 -e PGID=100 \
   --restart unless-stopped \
@@ -147,7 +147,7 @@ Gilt für alle drei Wege — im Assistenten des Container Managers, als
 
 ## 6. Aufrufen
 
-`http://<NAS-IP>:8090`
+`http://<NAS-IP>:1020`
 
 Die Datenbank wird beim ersten Aufruf automatisch angelegt.
 

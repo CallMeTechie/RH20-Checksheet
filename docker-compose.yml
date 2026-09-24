@@ -23,7 +23,7 @@ services:
     ports:
       # Links der Port auf der NAS. 8080 ist auf DSM oft schon belegt —
       # bei Bedarf auf einen anderen freien Port ändern.
-      - "8090:80"
+      - "1020:80"
 
     volumes:
       # Nur die Datenbank ist dauerhaft. Der Pfad muss auf der NAS existieren.

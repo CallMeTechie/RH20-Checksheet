@@ -44,7 +44,7 @@ Importieren → Von Datei hinzufügen**.
 ### Starten
 
 ```bash
-docker run -d --name rh20-checksheet -p 8090:80 \
+docker run -d --name rh20-checksheet -p 1020:80 \
   -v /volume1/docker/rh20-checksheet/data:/var/www/html/data \
   -e TZ=Europe/Berlin -e PUID=1000 -e PGID=1000 \
   --restart unless-stopped \
@@ -87,7 +87,7 @@ mitgelieferte `docker-compose.yml` verwenden unterschiedliche Namen, weil die
 Compose-Datei den Pfad einer bestehenden Installation beibehält. Maßgeblich ist
 nur, dass der Pfad existiert und zu `PUID`/`PGID` passt.
 
-Aufrufen unter `http://<HOST>:8090`. Die SQLite-Datenbank wird beim ersten
+Aufrufen unter `http://<HOST>:1020`. Die SQLite-Datenbank wird beim ersten
 Aufruf automatisch angelegt.
 
 ## 3. Nutzung
