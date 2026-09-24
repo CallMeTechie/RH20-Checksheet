@@ -1,42 +1,68 @@
-# RH20 Kopf-Prüfprotokoll (Web-App)
+# RH20 Kopf-Prüfprotokoll
 
-PHP/SQLite-Webanwendung zur Erfassung der Fuji-RH20-Kopfprüfung
-(Internal Head Sensor / Vacuum / Vacuum Break Down / Nozzle Cleaning, alle 20
-Shafts A–T). Kein Login, keine externen Abhängigkeiten, läuft direkt über
-Synology Web Station. **Jedes Feld speichert sofort beim Verlassen (Auto-Save) —
-es gibt keinen „Speichern"-Button.**
+Werkzeug zur Erfassung und Bewertung der Fuji-RH20-Kopfprüfung — Contact
+Detection, Internal Head Sensor, Vacuum (Z1/Z2), Vacuum Break Down, Nozzle
+Cleaning und Valve Air Stick über alle 20 Shafts A–T, druckbar als Prüfbericht
+auf A4 quer.
 
-## 1. Voraussetzungen auf der Synology
+PHP/SQLite, kein Framework, kein Build-Schritt, keine externen Abhängigkeiten.
+Läuft als Container. Kein Login. **Jedes Feld speichert sofort beim Verlassen
+(Auto-Save) — es gibt keinen „Speichern"-Button.**
 
-1. **Web Station** (Paket-Zentrum) installieren, falls noch nicht vorhanden.
-2. Ein **PHP-Profil** anlegen/verwenden (Web Station → PHP-Einstellungen →
-   Profil bearbeiten). **Erforderlich ist PHP 8.1 oder neuer** (die App nutzt
-   `match`, `mixed` und den Rückgabetyp `never`). Wichtig: In den Erweiterungen
-   müssen **`pdo_sqlite`** und **`sqlite3`** aktiviert sein. Weitere
-   Erweiterungen — auch `mbstring` — werden nicht benötigt.
-3. Einen virtuellen Host / Webordner anlegen, der auf dieses PHP-Profil zeigt.
+## 1. Voraussetzungen
 
-> **Alternativ als Container:** Das Repository enthält ein `Dockerfile` und eine
-> `docker-compose.yml` für den Betrieb als Container (z. B. im Container Manager
-> einer Synology). Ein fertiges Image liegt unter
-> `ghcr.io/callmetechie/rh20-checksheet`; für Systeme **ohne Internetzugang**
-> hängt jedem Release eine ladbare Image-Datei an —
-> siehe [`docs/OFFLINE-INSTALL.md`](docs/OFFLINE-INSTALL.md). Die folgende
-> Anleitung beschreibt die Installation direkt unter Web Station.
+Eine Docker-Umgebung — auf einer Synology der **Container Manager** aus dem
+Paket-Zentrum (DSM 7.2+), sonst Docker oder Podman.
+
+Das Image ist für **linux/amd64** gebaut und läuft damit auf Synology-Modellen
+mit Intel-/AMD-Prozessor (DS918+, DS920+, DS923+ …), **nicht** auf
+ARM-basierten Modellen.
+
+Alles Weitere bringt das Image mit: PHP 8.3 mit `pdo_sqlite` und `sqlite3`,
+Apache, die Zeitzone. Es gibt nichts zu konfigurieren außer dem
+Datenverzeichnis und dem Port.
 
 ## 2. Installation
 
-1. Diesen Ordner (`rh20-inspection/`) auf die NAS kopieren, z. B. nach
-   `/web/rh20-inspection/`.
-2. `data/`-Ordner für den Webserver-Benutzer (auf Synology i. d. R. `http`)
-   beschreibbar machen:
-   ```
-   chown -R http:http /web/rh20-inspection/data
-   chmod 775 /web/rh20-inspection/data
-   ```
-3. Im Browser aufrufen: `http://<NAS-IP>/rh20-inspection/index.php`
-4. Die SQLite-Datenbank `data/inspections.sqlite` wird beim ersten Aufruf
-   automatisch angelegt.
+### Mit Registry-Zugriff
+
+```bash
+docker run -d --name rh20-checksheet -p 8090:80 \
+  -v /volume1/docker/rh20-checksheet/data:/var/www/html/data \
+  -e TZ=Europe/Berlin -e PUID=1000 -e PGID=1000 \
+  --restart unless-stopped \
+  ghcr.io/callmetechie/rh20-checksheet:1.3.0
+```
+
+Oder mit der `docker-compose.yml` aus diesem Repository:
+
+```bash
+docker compose up -d
+```
+
+### Ohne Internetzugang
+
+Jedem Release liegt eine fertige Image-Datei bei, die sich ohne Registry
+einspielen lässt — im Container Manager über **Abbild → Aktion → Importieren →
+Von Datei hinzufügen**, oder per `docker load`. Schritt für Schritt in
+[`docs/OFFLINE-INSTALL.md`](docs/OFFLINE-INSTALL.md).
+
+### Was vor dem ersten Start anzupassen ist
+
+| Einstellung | Bedeutung |
+|---|---|
+| **Datenverzeichnis** | Der Pfad links vom Doppelpunkt muss existieren und beschreibbar sein. Er enthält später die einzige Datenbankdatei. |
+| **`PUID` / `PGID`** | Besitzer und Gruppe dieses Verzeichnisses, zu ermitteln mit `stat -c '%u %g' <Verzeichnis>`. Damit gehört die erzeugte Datenbank dem richtigen Benutzer und bleibt außerhalb des Containers handhabbar. **Nicht 0** — Apache verweigert den Start als root, der Container bricht mit einer entsprechenden Meldung ab. |
+| **Port** | Links der Port auf dem Host. Auf DSM ist 8080 häufig belegt. |
+| **`TZ`** | Bestimmt die Zeitstempel in den Prüfprotokollen. |
+
+Der Pfad des Datenverzeichnisses ist frei wählbar; das obige Beispiel und die
+mitgelieferte `docker-compose.yml` verwenden unterschiedliche Namen, weil die
+Compose-Datei den Pfad einer bestehenden Installation beibehält. Maßgeblich ist
+nur, dass der Pfad existiert und zu `PUID`/`PGID` passt.
+
+Aufrufen unter `http://<HOST>:8090`. Die SQLite-Datenbank wird beim ersten
+Aufruf automatisch angelegt.
 
 ## 3. Nutzung
 
@@ -63,14 +89,14 @@ es gibt keinen „Speichern"-Button.**
     Datenbank erhalten. Ein Feld bewusst leeren geht weiterhin, indem man es
     leer verlässt.
 - **Augen-Icon (Ansehen / Drucken)** – schreibgeschützte Berichtsansicht.
-  Drucker-Icon öffnet den Druckdialog (`Strg+P`) — siehe Abschnitt 4.
+  Drucker-Icon öffnet den Druckdialog (`Strg+P`) — siehe Abschnitt 5.
 - **Papierkorb-Icon** – löscht eine Prüfung inkl. aller 20 Shaft-Zeilen
   dauerhaft (mit Bestätigungsabfrage).
 
 Alle Aktions-Buttons sind Icons mit Tooltip (Maus kurz draufhalten zeigt die
 Beschriftung) statt Textbuttons.
 
-## 3a. Sprache
+## 4. Sprache
 
 Die Oberfläche gibt es auf **Englisch (Standard)** und Deutsch. Umgeschaltet wird
 über **EN / DE** oben rechts; die Wahl merkt sich ein Cookie (`rh20_lang`, ein
@@ -82,7 +108,7 @@ selbst (Vacuum, Nozzle Cleaning, Pressure, Flow …) stehen in beiden Sprachen
 englisch, weil sie so auf dem Fuji-Beleg und an den Messgeräten stehen. Alle
 Texte liegen in `lang.php`; ein fehlender Schlüssel fällt auf Englisch zurück.
 
-## 4. Drucken / PDF
+## 5. Drucken / PDF
 
 Die Berichtsansicht (`view.php`) ist auf **DIN A4 Querformat** ausgelegt und
 passt im Regelfall auf **eine**, spätestens auf **zwei** Seiten.
@@ -110,7 +136,7 @@ Block zusammen und rutscht nur dann komplett auf Seite 2, wenn sie auf Seite 1
 nicht mehr passt. Reißt die Messtabelle über den Seitenrand, wird ihr
 Tabellenkopf auf der Folgeseite wiederholt und keine Zeile aufgetrennt.
 
-## 5. Prüfkriterien (Referenz)
+## 6. Prüfkriterien (Referenz)
 
 | Test | Ort | Standard |
 |---|---|---|
@@ -151,22 +177,25 @@ Das Gesamtergebnis der Prüfung ist FAIL, sobald ein Shaft oder die Flow-Messung
 durchfällt; sonst INCOMPLETE, solange Werte fehlen; sonst WARN, wenn mindestens
 ein Shaft grenzwertig ist; sonst PASS.
 
-## 6. Sicherheit / Hinweise
+## 7. Sicherheit / Hinweise
 
-- **Kein Login** (wie gewünscht) — die App sollte daher nur im internen LAN
-  erreichbar sein (kein Port-Forward). Für Fernzugriff eher VPN oder den
-  Synology-Login-Portal-Schutz davorschalten.
-- Alle Daten liegen in **einer Datei**: `data/inspections.sqlite`. Für
-  Backups genügt es, diese Datei in eine bestehende Hyper-Backup-Aufgabe
-  aufzunehmen.
-- Das Verzeichnis `data/` enthält eine **`.htaccess`**, die den direkten
-  HTTP-Zugriff auf die Datenbankdatei sperrt. Das greift nur bei Apache.
-  **Läuft der virtuelle Host unter nginx**, muss die Sperre dort ergänzt
-  werden, sonst ist `http://<NAS-IP>/rh20-inspection/data/inspections.sqlite`
-  herunterladbar:
-  ```
-  location ~ /data/ { deny all; return 404; }
-  ```
+- **Kein Login** — die App sollte daher nur im internen Netz erreichbar sein
+  (keine Portweiterleitung). Für Fernzugriff VPN oder einen Reverse Proxy mit
+  vorgeschalteter Authentifizierung.
+- Alle Daten liegen in **einer Datei**: `data/inspections.sqlite`. Für Backups
+  genügt es, diese Datei in eine bestehende Sicherungsaufgabe aufzunehmen.
+- Die Datenbank ist **nicht über HTTP erreichbar**. Die Sperre steht in der
+  vhost-Konfiguration des Images (`docker/rh20.conf`) und nicht allein in
+  `data/.htaccess` — im Basisimage gilt `AllowOverride None`, `.htaccess`
+  würde also ignoriert. Ein Aufruf von `/data/inspections.sqlite` liefert 403.
+- **Der PHP-Code läuft als `www-data`**, nicht als root. Nur der
+  Apache-Masterprozess ist root, weil er Port 80 bindet — die Arbeitsprozesse,
+  die Anfragen bearbeiten, laufen unprivilegiert. Ein versehentliches `PUID=0`
+  wird beim Start mit einer verständlichen Meldung abgewiesen, statt Apache in
+  einen kryptischen Fehler laufen zu lassen.
+- Die erzeugte Datenbank gehört dem über `PUID`/`PGID` gesetzten Benutzer und
+  ist damit außerhalb des Containers normal handhabbar (z. B. in der File
+  Station).
 - Anlegen und Löschen laufen über **POST**, damit ein Reload oder ein
   Link-Prefetch des Browsers keine Prüfung anlegt oder löscht.
 - Da jedes Feld sofort speichert, gibt es keinen „ungespeicherten Zustand"
@@ -174,10 +203,10 @@ ein Shaft grenzwertig ist; sonst PASS.
 - Es gibt keinen Schutz gegen gleichzeitiges Bearbeiten: Öffnen zwei Personen
   dieselbe Prüfung, gewinnt der zuletzt gespeicherte Wert.
 
-## 7. Dateiübersicht
+## 8. Dateiübersicht
 
 ```
-rh20-inspection/
+.
 ├── index.php          Übersicht aller gespeicherten Prüfungen
 ├── create.php          legt neue Prüfung an (20 leere Zeilen), nur per POST
 ├── edit.php             Live-Erfassungsmaske (Auto-Save, Tastatur-Navigation)
@@ -191,11 +220,15 @@ rh20-inspection/
 ├── icons.php                  SVG-Icon-Set + Icon-Button-Helfer
 ├── assets/style.css            Layout (Bildschirm + Druck)
 ├── assets/app.js                Auto-Save + Enter-Tastatur-Navigation
-├── data/.htaccess                sperrt den HTTP-Zugriff auf die Datenbank
-└── data/inspections.sqlite        (wird automatisch erzeugt)
+├── Dockerfile                    Image-Definition (php:8.3-apache)
+├── docker-compose.yml             Startkonfiguration
+├── docker/rh20.conf                vhost; sperrt den Zugriff auf data/
+├── docker/entrypoint.sh             setzt PUID/PGID, prüft das Datenverzeichnis
+├── data/.htaccess                    zusätzliche Sperre außerhalb des Containers
+└── data/inspections.sqlite             (wird automatisch erzeugt)
 ```
 
-## 8. Z1 / Z2 (zwei V-Achsen-Seiten)
+## 9. Z1 / Z2 (zwei V-Achsen-Seiten)
 
 Vacuum Pressure und Vacuum Flow werden **komplett getrennt für beide Seiten**
 erfasst: alle 20 Shafts A–T einmal für Z1 und einmal für Z2 (vier Spalten
@@ -203,7 +236,7 @@ statt zwei). Ein Shaft ergibt nur dann PASS, wenn **beide** Seiten die
 Spezifikation erfüllen — so wird gleichzeitig sichtbar, ob eine der beiden
 Z-Achsen falsch justiert ist.
 
-## 9. Migration bestehender Datenbanken
+## 10. Migration bestehender Datenbanken
 
 Alle folgenden Umstellungen laufen beim ersten Aufruf automatisch und ohne
 Datenverlust; sie können gefahrlos mehrfach ausgeführt werden.
@@ -226,5 +259,6 @@ Datenverlust; sie können gefahrlos mehrfach ausgeführt werden.
    Bemerkungsspalte entfällt in der Oberfläche; die Datenbankspalte `remarks` bleibt
    unangetastet stehen und wird nicht mehr gelesen.
 
-Vor dem Update der Dateien empfiehlt sich trotzdem eine Kopie von
-`data/inspections.sqlite`.
+Vor dem Einspielen einer neuen Version empfiehlt sich trotzdem eine Kopie von
+`data/inspections.sqlite`. Das Datenverzeichnis liegt außerhalb des Containers
+und überlebt ein `docker compose up -d` mit neuem Image unverändert.
