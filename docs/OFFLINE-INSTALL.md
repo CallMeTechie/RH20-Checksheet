@@ -29,67 +29,100 @@ Erwartet: `rh20-checksheet-1.3.0-image.tar.gz: OK`
 Über File Station oder eine SMB-Freigabe, zum Beispiel nach
 `/volume1/docker/`. Die Datei muss nicht entpackt werden.
 
-## 3a. Einspielen über den Container Manager
+## 3. Image einspielen
 
-1. **Container Manager → Abbild → Aktion → Importieren → Von Datei hinzufügen**
-2. `rh20-checksheet-1.3.0-image.tar.gz` auswählen.
-3. Anschließend **Projekt → Erstellen**, das Verzeichnis mit der
-   `docker-compose.yml` wählen und das Projekt starten.
+**Container Manager → Abbild → Aktion → Importieren → Von Datei hinzufügen**,
+die `.tar.gz` auswählen. Danach muss unter **Abbild** genau dieser Eintrag
+stehen:
 
-> Akzeptiert der Dateidialog die `.gz`-Datei nicht, vorher entpacken
-> (`gunzip rh20-checksheet-1.3.0-image.tar.gz`) und die entstandene `.tar`
-> auswählen.
+```
+ghcr.io/callmetechie/rh20-checksheet    1.3.0
+```
 
-## 3b. Alternativ über SSH
+Steht dort ein anderer Name oder `<none>`, ist der Import schiefgegangen —
+dann den Weg über SSH nehmen (Abschnitt 4b).
+
+## 4. Container anlegen
+
+### 4a. Direkt aus dem Abbild — empfohlen ohne Internetzugang
+
+Dieser Weg **kann keinen Registry-Zugriff auslösen**, weil er von einem bereits
+vorhandenen Abbild ausgeht. Er braucht die `docker-compose.yml` nicht.
+
+1. **Container Manager → Abbild**, das importierte Abbild markieren,
+   **Ausführen**.
+2. Containername: `rh20-checksheet`. **Automatischen Neustart aktivieren**
+   anhaken.
+3. **Erweiterte Einstellungen → Port-Einstellungen:**
+   lokaler Port `8090` → Container-Port `80` (TCP).
+4. **Speicherort / Volume:** *Ordner hinzufügen*, das vorbereitete
+   Datenverzeichnis wählen, Mount-Pfad `/var/www/html/data`, Schreibrecht.
+5. **Umgebung:** drei Variablen setzen —
+
+   | Variable | Wert |
+   |---|---|
+   | `TZ` | `Europe/Berlin` |
+   | `PUID` | UID des Datenverzeichnisses |
+   | `PGID` | GID des Datenverzeichnisses |
+
+6. Fertigstellen und starten.
+
+### 4b. Über SSH
 
 ```
 sudo /usr/local/bin/docker load -i /volume1/docker/rh20-checksheet-1.3.0-image.tar.gz
-cd /volume1/docker/rh20-checksheet && sudo /usr/local/bin/docker compose up -d
+
+sudo /usr/local/bin/docker run -d --name rh20-checksheet \
+  -p 8090:80 \
+  -v /volume1/docker/rh20-checksheet/data:/var/www/html/data \
+  -e TZ=Europe/Berlin -e PUID=1026 -e PGID=100 \
+  --restart unless-stopped \
+  ghcr.io/callmetechie/rh20-checksheet:1.3.0
 ```
+
+`PUID`/`PGID` vorher ermitteln mit
+`stat -c '%u %g' /volume1/docker/rh20-checksheet/data`.
 
 Auf Synology liegt das Docker-Binary unter `/usr/local/bin/docker` und ist
 nicht im `PATH` von `sudo` — daher der vollständige Pfad.
 
-## 3c. Wenn der Container Manager trotzdem zu laden versucht
+Alternativ mit der mitgelieferten `docker-compose.yml`:
 
-Die mitgelieferte `docker-compose.yml` enthält `pull_policy: missing` — damit
-greift Compose nur dann auf eine Registry zu, wenn das Image lokal fehlt. Ohne
-diese Zeile versucht der Container Manager bei **jedem** Anlegen oder
-Aktualisieren eines Projekts einen Registry-Zugriff und läuft ohne Internet in
-einen Timeout.
-
-Für ein streng abgeschottetes System die Zeile auf
-
-```yaml
-    pull_policy: never
+```
+cd /volume1/docker/rh20-checksheet && sudo /usr/local/bin/docker compose up -d
 ```
 
-ändern. Dann wird nie gezogen; fehlt das Image, meldet Compose das sofort,
-statt auf einen Timeout zu warten.
+Die Datei enthält `pull_policy: never`; nachgemessen mit Compose 2.26.1 meldet
+`docker compose pull` damit `Skipped` statt eines Ladeversuchs.
 
-Meldet der Container Manager weiterhin einen Ladeversuch, prüfen:
+### 4c. Als Projekt im Container Manager — nicht ohne Internetzugang
 
-- Wurde das Image **vor** dem Anlegen des Projekts importiert? Unter
-  **Abbild** muss `ghcr.io/callmetechie/rh20-checksheet:1.3.0` gelistet sein.
-- Stimmt der Name in der `docker-compose.yml` **exakt** mit dem gelisteten
-  Abbild überein, einschließlich Tag? Eine Abweichung um ein Zeichen führt zum
-  Ladeversuch.
+Legt man die `docker-compose.yml` als **Projekt** an, versucht der Container
+Manager das Image trotz `pull_policy` zu ziehen. Die Angabe wirkt für
+`docker compose` auf der Kommandozeile, nicht für das Projekt-UI. Ohne
+Internetzugang läuft das in einen Timeout, mit Internetzugang scheitert es
+zusätzlich daran, dass das Paket auf ghcr.io privat ist.
 
-## 4. Vor dem ersten Start anpassen
+Auf einem abgeschotteten System daher 4a oder 4b verwenden.
 
-In der `docker-compose.yml`:
+## 5. Was einzustellen ist
 
-- **Datenverzeichnis:** Der Pfad links vom Doppelpunkt muss auf dem Zielsystem
-  existieren und beschreibbar sein. Er enthält später die einzige
-  Datenbankdatei `inspections.sqlite`.
+Gilt für alle drei Wege — im Assistenten des Container Managers, als
+`-v`/`-e`-Angaben beim `docker run` oder in der `docker-compose.yml`:
+
+- **Datenverzeichnis:** muss auf dem Zielsystem existieren und beschreibbar
+  sein; Mount-Pfad im Container ist `/var/www/html/data`. Dort liegt später die
+  einzige Datenbankdatei `inspections.sqlite`.
 - **`PUID` / `PGID`:** auf Besitzer und Gruppe dieses Verzeichnisses setzen,
   damit die erzeugte Datenbank außerhalb des Containers handhabbar bleibt.
-  Ermitteln mit `stat -c '%u %g' <Datenverzeichnis>`. **Nicht 0** — der
-  Webserver verweigert den Start als root.
-- **Port:** links steht der Port auf dem Host. 8080 ist auf DSM häufig belegt.
+  Ermitteln mit `stat -c '%u %g' <Datenverzeichnis>`. **Nicht 0** — Apache
+  verweigert den Start als root, der Container bricht mit einer entsprechenden
+  Meldung ab.
+- **Port:** der Port auf dem Host, Container-Port ist `80`. 8080 ist auf DSM
+  häufig belegt.
 - **Zeitzone:** `TZ` bestimmt die Zeitstempel in den Prüfprotokollen.
 
-## 5. Aufrufen
+## 6. Aufrufen
 
 `http://<NAS-IP>:8090`
 

@@ -7,13 +7,16 @@ services:
     # herunterladen und mit `docker load` einspielen; sie trägt denselben Namen.
     image: ghcr.io/callmetechie/rh20-checksheet:1.3.0
 
-    # Nur ziehen, wenn das Image lokal fehlt. Ohne diese Zeile versucht
-    # `docker compose pull` — und damit auch der Container Manager beim Anlegen
-    # oder Aktualisieren eines Projekts — bei JEDEM Start einen Registry-Zugriff.
-    # Auf einer Maschine ohne Internet läuft das in einen Timeout.
-    # Für ein streng abgeschottetes System stattdessen `never` setzen: dann
-    # wird nie gezogen und ein fehlendes Image sofort gemeldet, statt zu warten.
-    pull_policy: missing
+    # Nie aus einer Registry ziehen — das Image wird vorher mit `docker load`
+    # eingespielt. Ohne diese Zeile versucht `docker compose pull` bei jedem
+    # Start einen Registry-Zugriff und läuft ohne Internet in einen Timeout.
+    #
+    # ACHTUNG: Der Synology Container Manager ignoriert diese Angabe, wenn die
+    # Datei als *Projekt* angelegt wird — er zieht dann trotzdem. Auf einer
+    # Maschine ohne Internetzugang den Container stattdessen direkt aus dem
+    # importierten Abbild anlegen (Container Manager → Abbild → Ausführen) oder
+    # dieses Compose über SSH starten. Siehe docs/OFFLINE-INSTALL.md.
+    pull_policy: never
     container_name: rh20-inspection
     restart: unless-stopped
 
