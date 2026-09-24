@@ -37,7 +37,7 @@ die `.tar.gz` auswählen.
 **Danach unbedingt den Namen prüfen.** Unter **Abbild** muss genau das stehen:
 
 ```
-ghcr.io/callmetechie/rh20-checksheet    1.3.0
+ghcr.io/callmetechie/rh20-checksheet    1.3.1
 ```
 
 Steht dort stattdessen der **Dateiname** (`rh20-checksheet-1.3.1-image.tar.gz`)
@@ -122,9 +122,9 @@ Die Datei enthält `pull_policy: never`; nachgemessen mit Compose 2.26.1 meldet
 
 Legt man die `docker-compose.yml` als **Projekt** an, versucht der Container
 Manager das Image trotz `pull_policy` zu ziehen. Die Angabe wirkt für
-`docker compose` auf der Kommandozeile, nicht für das Projekt-UI. Ohne
-Internetzugang läuft das in einen Timeout, mit Internetzugang scheitert es
-zusätzlich daran, dass das Paket auf ghcr.io privat ist.
+`docker compose` auf der Kommandozeile, nicht für das Projekt-UI. Der Versuch
+scheitert in jedem Fall: die Registry hinter dem Bildnamen ist nicht
+öffentlich, das Image wird ausschließlich als Datei ausgeliefert.
 
 Auf einem abgeschotteten System daher 4a oder 4b verwenden.
 

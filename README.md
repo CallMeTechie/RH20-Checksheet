@@ -24,7 +24,24 @@ Datenverzeichnis und dem Port.
 
 ## 2. Installation
 
-### Mit Registry-Zugriff
+Das fertige Image liegt **jedem Release als Datei bei** — es gibt keine
+öffentliche Registry, aus der es gezogen werden könnte. Der Bildname beginnt
+zwar mit `ghcr.io/…`, das ist aber nur ein Bezeichner; die zugehörige Registry
+ist nicht öffentlich.
+
+### Image einspielen
+
+Von der [Release-Seite](https://github.com/CallMeTechie/RH20-Checksheet/releases/latest)
+`rh20-checksheet-<version>-image.tar.gz` herunterladen und einspielen:
+
+```bash
+docker load -i rh20-checksheet-1.3.1-image.tar.gz
+```
+
+Auf einer Synology stattdessen über **Container Manager → Abbild → Aktion →
+Importieren → Von Datei hinzufügen**.
+
+### Starten
 
 ```bash
 docker run -d --name rh20-checksheet -p 8090:80 \
@@ -40,11 +57,20 @@ Oder mit der `docker-compose.yml` aus diesem Repository:
 docker compose up -d
 ```
 
-### Ohne Internetzugang
+Die Compose-Datei enthält `pull_policy: never` — sie erwartet das Image also
+lokal und versucht keinen Registry-Zugriff.
 
-Jedem Release liegt eine fertige Image-Datei bei, die sich ohne Registry
-einspielen lässt — im Container Manager über **Abbild → Aktion → Importieren →
-Von Datei hinzufügen**, oder per `docker load`. Schritt für Schritt in
+### Selbst bauen
+
+Ebenso möglich, das Repository enthält alles Nötige:
+
+```bash
+docker build -t rh20-checksheet:local .
+```
+
+Dann in `docker-compose.yml` den Bildnamen auf `rh20-checksheet:local` setzen.
+
+Schritt für Schritt, auch für Systeme ohne Internetzugang, in
 [`docs/OFFLINE-INSTALL.md`](docs/OFFLINE-INSTALL.md).
 
 ### Was vor dem ersten Start anzupassen ist
