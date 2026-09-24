@@ -17,10 +17,12 @@ try {
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     $pdo->exec('PRAGMA foreign_keys = ON');
 } catch (PDOException $e) {
+    // Details ins Error-Log (im Container: docker logs), nicht in die Seite —
+    // die Meldung enthielte den internen Dateipfad.
+    error_log('rh20-inspection db: ' . $e->getMessage());
     http_response_code(500);
-    die('Datenbankverbindung fehlgeschlagen. Prüfen Sie, ob das Verzeichnis "data/" '
-        . 'für den Webserver-Benutzer beschreibbar ist. ('
-        . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . ')');
+    die('Datenbankverbindung fehlgeschlagen. Prüfen Sie, ob das Datenverzeichnis '
+        . 'für den Webserver-Benutzer beschreibbar ist.');
 }
 
 $pdo->exec("

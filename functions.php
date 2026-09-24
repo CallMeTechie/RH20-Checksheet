@@ -361,3 +361,39 @@ function h(mixed $v): string
 {
     return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8');
 }
+
+/**
+ * Kommt eine schreibende Anfrage von einer fremden Webseite?
+ *
+ * Die Anwendung hat keine Anmeldung. Ohne diese Prüfung könnte jede Webseite,
+ * die jemand im Firmennetz im Browser öffnet, per unsichtbarem Formular
+ * Prüfungen löschen oder Messwerte überschreiben — der Browser schickt die
+ * Anfrage an die NAS, als käme sie vom Benutzer.
+ *
+ * Maßgeblich ist Sec-Fetch-Site, das alle aktuellen Browser selbst setzen und
+ * das eine Seite nicht fälschen kann. Nur ohne diesen Header wird auf Origin
+ * zurückgegriffen. Fehlen beide, stammt die Anfrage nicht aus einem
+ * Browser-Kontext (curl, Skript) und wird zugelassen.
+ *
+ * "same-site" wird ebenfalls abgewiesen: dazu zählen auch andere Dienste auf
+ * derselben NAS unter einem anderen Port.
+ */
+function isCrossSiteRequest(array $server): bool
+{
+    $site = $server['HTTP_SEC_FETCH_SITE'] ?? null;
+    if ($site !== null) {
+        return !in_array($site, ['same-origin', 'none'], true);
+    }
+
+    $origin = $server['HTTP_ORIGIN'] ?? null;
+    if ($origin === null) {
+        return false;
+    }
+    $host = parse_url($origin, PHP_URL_HOST);
+    if (!is_string($host) || $host === '') {
+        return true; // u. a. "Origin: null" aus Sandbox-Frames
+    }
+    $port = parse_url($origin, PHP_URL_PORT);
+    $originHost = strtolower($host . ($port !== null ? ':' . $port : ''));
+    return $originHost !== strtolower((string)($server['HTTP_HOST'] ?? ''));
+}

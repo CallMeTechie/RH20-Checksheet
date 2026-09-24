@@ -35,7 +35,7 @@ Von der [Release-Seite](https://github.com/CallMeTechie/RH20-Checksheet/releases
 `rh20-checksheet-<version>-image.tar.gz` herunterladen und einspielen:
 
 ```bash
-docker load -i rh20-checksheet-1.3.1-image.tar.gz
+docker load -i rh20-checksheet-1.3.2-image.tar.gz
 ```
 
 Auf einer Synology stattdessen über **Container Manager → Abbild → Aktion →
@@ -48,7 +48,7 @@ docker run -d --name rh20-checksheet -p 8090:80 \
   -v /volume1/docker/rh20-checksheet/data:/var/www/html/data \
   -e TZ=Europe/Berlin -e PUID=1000 -e PGID=1000 \
   --restart unless-stopped \
-  ghcr.io/callmetechie/rh20-checksheet:1.3.1
+  ghcr.io/callmetechie/rh20-checksheet:1.3.2
 ```
 
 Oder mit der `docker-compose.yml` aus diesem Repository:

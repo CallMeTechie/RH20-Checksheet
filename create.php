@@ -9,6 +9,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: index.php');
     exit;
 }
+if (isCrossSiteRequest($_SERVER)) {
+    http_response_code(403);
+    die('Anfrage von einer fremden Seite abgewiesen.');
+}
 
 $pdo->beginTransaction();
 try {

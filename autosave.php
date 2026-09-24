@@ -14,6 +14,9 @@ function fail(int $code, string $msg): never
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     fail(405, 'method_not_allowed');
 }
+if (isCrossSiteRequest($_SERVER)) {
+    fail(403, 'cross_site_request');
+}
 
 $id    = (int)($_POST['id'] ?? 0);
 $scope = (string)($_POST['scope'] ?? '');
@@ -61,7 +64,10 @@ try {
             $val = 'RH20';
         }
         $stmt = $pdo->prepare("UPDATE inspections SET {$field} = :v, updated_at = datetime('now','localtime') WHERE id = :id");
-        $stmt->execute([':v' => ($val === '' ? null : $val), ':id' => $id]);
+        // Leer als '' speichern, nicht als NULL: serial_number und
+        // inspection_date sind NOT NULL, ein NULL scheiterte mit db_error und
+        // ließ den alten Wert stehen, während das Feld leer aussah.
+        $stmt->execute([':v' => $val, ':id' => $id]);
 
     } elseif ($scope === 'head') {
         // Einmalige Messungen je Kopf: Contact Detection Pressure und die
