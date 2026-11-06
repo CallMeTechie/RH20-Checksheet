@@ -114,8 +114,31 @@ Aufruf automatisch angelegt.
     „Nicht gespeichert …", und der zuletzt gültige Messwert bleibt in der
     Datenbank erhalten. Ein Feld bewusst leeren geht weiterhin, indem man es
     leer verlässt.
+  - **Seite verlassen geht jederzeit**, auch per Neuladen, Tab schließen oder
+    Browser-Zurück, während der Cursor noch im Feld steht: der zuletzt getippte
+    Wert wird dabei noch gespeichert. Steht irgendwo eine ungültige Eingabe
+    (rot umrandet) oder hängt eine Speicheranfrage länger als 2 s, fragt der
+    Browser vor dem Verlassen nach. Eine Speicheranfrage, die nach 10 s nicht
+    beantwortet ist, gilt als fehlgeschlagen und wird rot markiert. Einen
+    „Fertig"-Knopf gibt es deshalb nicht mehr; zurück geht es über den Pfeil
+    oben rechts.
+  - **Valve Air Stick überspringen:** Die Checkbox über der Messtabelle trägt
+    in allen 20 Shafts den Standardwert 0.03 mm ein und sperrt die Felder — für
+    Prüfungen, bei denen die Messung entfällt oder ohne Messuhr von Hand
+    erfolgt. Stehen schon Messwerte in der Spalte, wird vorher nachgefragt.
+    Haken entfernen leert die 20 Felder wieder, damit der Standardwert nicht als
+    Messwert stehen bleibt. Der Bericht vermerkt die übersprungene Messung mit
+    einem Sternchen an der Spalte und einer Fußnote.
+  - Oben rechts: **Augen-Icon** öffnet die Berichtsansicht, **Drucker-Icon**
+    öffnet sie und startet sofort den Druckdialog.
 - **Augen-Icon (Ansehen / Drucken)** – schreibgeschützte Berichtsansicht.
   Drucker-Icon öffnet den Druckdialog (`Strg+P`) — siehe Abschnitt 5.
+- **Als neue Prüfung kopieren** – nur in der Berichtsansicht: **Rechtsklick
+  auf das Stift-Icon** öffnet ein Menü, das die Prüfung als neue Prüfung
+  ablegt — Kopfdaten, einmalige Kopfmessungen, alle 20 Shaft-Zeilen und die
+  Einstellung „Valve Air Stick überspringen". Das Datum der Kopie ist der
+  heutige Tag; danach öffnet sich direkt die Erfassung der Kopie. Ein normaler
+  Klick auf das Stift-Icon bearbeitet wie gewohnt.
 - **Papierkorb-Icon** – löscht eine Prüfung inkl. aller 20 Shaft-Zeilen
   dauerhaft (mit Bestätigungsabfrage).
 
@@ -178,7 +201,7 @@ Tabellenkopf auf der Folgeseite wiederholt und keine Zeile aufgetrennt.
 | Vacuum Break Down – Flow Rate | Nozzle Tip | ≥ 0.5 L/min |
 | Nozzle Cleaning – Pressure | Nozzle Tip | ≥ 100 kPa (mit 100 vorbelegt, siehe unten) |
 | Nozzle Cleaning – Flow Rate | Nozzle Tip | ≥ 0.8 L/min |
-| **Valve Air Stick – Repeated Sliding** | je Shaft, Messuhr | \|Wert\| ≤ 0.08 mm |
+| **Valve Air Stick – Repeated Sliding** | je Shaft, Messuhr | \|Wert\| ≤ 0.08 mm (übersprungen: 0.03 mm in allen Shafts, siehe Abschnitt 3) |
 
 **Vorbelegung Nozzle Cleaning Pressure:** Neue Prüfungen starten mit 100 kPa in
 allen 20 Shafts. Das Messinstrument zeigt nicht mehr als 100 kPa an, der reale
@@ -222,10 +245,12 @@ ein Shaft grenzwertig ist; sonst PASS.
 - Die erzeugte Datenbank gehört dem über `PUID`/`PGID` gesetzten Benutzer und
   ist damit außerhalb des Containers normal handhabbar (z. B. in der File
   Station).
-- Anlegen und Löschen laufen über **POST**, damit ein Reload oder ein
+- Anlegen, Kopieren und Löschen laufen über **POST**, damit ein Reload oder ein
   Link-Prefetch des Browsers keine Prüfung anlegt oder löscht.
-- Da jedes Feld sofort speichert, gibt es keinen „ungespeicherten Zustand"
-  mehr, der beim Schließen des Tabs verloren gehen könnte.
+- Da jedes Feld sofort speichert — beim Verlassen der Seite auch das gerade
+  bearbeitete —, gibt es keinen „ungespeicherten Zustand", der beim Schließen
+  des Tabs verloren gehen könnte. Ausnahme sind ungültige Eingaben; vor diesen
+  warnt der Browser beim Verlassen.
 - Es gibt keinen Schutz gegen gleichzeitiges Bearbeiten: Öffnen zwei Personen
   dieselbe Prüfung, gewinnt der zuletzt gespeicherte Wert.
 
@@ -235,6 +260,7 @@ ein Shaft grenzwertig ist; sonst PASS.
 .
 ├── index.php          Übersicht aller gespeicherten Prüfungen
 ├── create.php          legt neue Prüfung an (20 leere Zeilen), nur per POST
+├── copy.php            legt eine Kopie als neue Prüfung an, nur per POST
 ├── edit.php             Live-Erfassungsmaske (Auto-Save, Tastatur-Navigation)
 ├── autosave.php          AJAX-Endpunkt: speichert ein einzelnes Feld sofort
 ├── view.php               druckbare Berichtsansicht (A4 quer)
@@ -284,6 +310,10 @@ Datenverlust; sie können gefahrlos mehrfach ausgeführt werden.
    INCOMPLETE, bis die 20 Werte nachgetragen sind — kein Messwert geht verloren. Die
    Bemerkungsspalte entfällt in der Oberfläche; die Datenbankspalte `remarks` bleibt
    unangetastet stehen und wird nicht mehr gelesen.
+
+5. **Valve Air Stick überspringen kam hinzu:** Die Spalte `valve_skipped` wird auf
+   Prüfungsebene ergänzt (Standard 0). Bestehende Prüfungen gelten als gemessen,
+   ihre Werte bleiben unverändert.
 
 Vor dem Einspielen einer neuen Version empfiehlt sich trotzdem eine Kopie von
 `data/inspections.sqlite`. Das Datenverzeichnis liegt außerhalb des Containers

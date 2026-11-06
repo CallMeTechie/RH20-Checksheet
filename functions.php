@@ -37,6 +37,14 @@ const CONTACT_TOL    = 4.0;
 const VALVE_SLIDE_MAX = 0.08;  // mm, Betrag, Grenze eingeschlossen
 
 /**
+ * Valve Air Stick muss nicht immer gemessen werden (oder wird von Hand ohne
+ * Messuhr geprüft). Wird die Messung je Prüfung übersprungen, steht in allen
+ * 20 Feldern dieser Standardwert, die Felder sind dann gesperrt, und der Bericht
+ * vermerkt, dass es kein Messwert ist.
+ */
+const VALVE_SKIP_DEFAULT = 0.03;  // mm
+
+/**
  * Vorbelegung für Nozzle Cleaning Pressure. Das Messinstrument zeigt maximal
  * 100 kPa an, der reale Druck liegt deutlich höher — der Wert ist deshalb in
  * aller Regel genau 100 und wird nur im Ausnahmefall überschrieben.

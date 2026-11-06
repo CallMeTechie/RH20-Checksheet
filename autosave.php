@@ -87,17 +87,44 @@ try {
         }
         if (in_array($field, $numericFields, true)) {
             $num = numericOrFail($value);
-            $stmt = $pdo->prepare("UPDATE syringe_readings SET {$field} = :v WHERE inspection_id = :id AND syringe = :sy");
+            // Bei übersprungener Messung sind die Felder gesperrt und tragen den
+            // Standardwert — ein Messwert darf ihn nicht still ersetzen. Die
+            // Prüfung steht im UPDATE selbst, damit ein gleichzeitig gesetztes
+            // Überspringen nicht zwischen Lesen und Schreiben durchrutscht.
+            $guard = $field === 'valve_slide'
+                ? ' AND (SELECT valve_skipped FROM inspections WHERE id = :id) = 0' : '';
+            $stmt = $pdo->prepare("UPDATE syringe_readings SET {$field} = :v WHERE inspection_id = :id AND syringe = :sy{$guard}");
             $stmt->execute([':v' => $num, ':id' => $id, ':sy' => $letter]);
+            if ($guard !== '' && $stmt->rowCount() === 0) {
+                fail(409, 'valve_skipped');
+            }
         } else {
             fail(400, 'invalid_field');
         }
         $pdo->prepare("UPDATE inspections SET updated_at = datetime('now','localtime') WHERE id = :id")->execute([':id' => $id]);
 
+    } elseif ($scope === 'valve_skip') {
+        // Valve Air Stick überspringen (1) oder doch messen (0), einmal für alle
+        // 20 Shafts. Zurücknehmen leert die Felder wieder, damit der Standardwert
+        // nicht als vermeintlicher Messwert stehen bleibt.
+        if (!in_array($value, ['0', '1'], true)) {
+            fail(400, 'invalid_value');
+        }
+        $skip = $value === '1';
+        $pdo->beginTransaction();
+        $pdo->prepare("UPDATE inspections SET valve_skipped = :s, updated_at = datetime('now','localtime') WHERE id = :id")
+            ->execute([':s' => (int)$skip, ':id' => $id]);
+        $pdo->prepare('UPDATE syringe_readings SET valve_slide = :v WHERE inspection_id = :id')
+            ->execute([':v' => $skip ? VALVE_SKIP_DEFAULT : null, ':id' => $id]);
+        $pdo->commit();
+
     } else {
         fail(400, 'invalid_scope');
     }
 } catch (PDOException $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     // Interne Details ins PHP-Error-Log, nicht in die Antwort (kein Pfad-Leak).
     error_log('rh20-inspection autosave: ' . $e->getMessage());
     fail(500, 'db_error');
@@ -145,6 +172,21 @@ if ($scope === 'syringe') {
         $response['cell_class'] = cellClass($num, $field, $letter);
         $response['value']      = fmtNum($num);
     }
+} elseif ($scope === 'valve_skip') {
+    // Alle 20 Valve-Felder und Zeilenergebnisse haben sich geändert.
+    $v = (int)$insp['valve_skipped'] === 1 ? VALVE_SKIP_DEFAULT : null;
+    $response['skipped']     = $v !== null;
+    $response['value']       = fmtNum($v);
+    $response['cell_class']  = cellClass($v, 'valve_slide');
+    $response['row_results'] = [];
+    foreach (syringeLetters() as $l) {
+        $response['row_results'][$l] = evaluateSyringe($byLetter[$l] ?? [], $l);
+    }
+} elseif ($scope === 'header') {
+    // Gespeicherter Wert zurück: getrimmt, ein leeres Head Model als 'RH20'.
+    // Ohne ihn zeigte die Maske weiter das leere Feld.
+    $response['field'] = $field;
+    $response['value'] = (string)$insp[$field];
 } elseif ($scope === 'head') {
     $v = ($insp[$field] ?? null) !== null ? (float)$insp[$field] : null;
     $response['cell_class'] = cellClass($v, $field);

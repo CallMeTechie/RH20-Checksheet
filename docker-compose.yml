@@ -2,9 +2,9 @@
 # als "Projekt" importierbar, oder per `docker compose up -d` über SSH.
 services:
   rh20-inspection:
-    # Vorgebautes Image. Entweder aus der Registry beziehen oder — auf einem
-    # Rechner ohne Internetzugang — die Image-Datei aus dem GitHub-Release
-    # herunterladen und mit `docker load` einspielen; sie trägt denselben Namen.
+    # Vorgebautes Image. Es gibt keine öffentliche Registry: die Image-Datei aus
+    # dem GitHub-Release herunterladen und mit `docker load` einspielen (auf der
+    # Synology: Container Manager → Abbild → Importieren); sie trägt diesen Namen.
     image: ghcr.io/callmetechie/rh20-checksheet:1.3.2
 
     # Nie aus einer Registry ziehen — das Image wird vorher mit `docker load`
@@ -39,12 +39,9 @@ services:
       PUID: "1026"
       PGID: "100"
 
-    healthcheck:
-      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1/index.php') ? 0 : 1);"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    # Kein eigener healthcheck: der im Image (Dockerfile) prüft genauer — mit
+    # Timeout und auf eine tatsächlich ausgelieferte RH20-Seite — und gilt,
+    # solange er hier nicht überschrieben wird.
 
     logging:
       driver: json-file

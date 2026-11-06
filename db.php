@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-// Die SQLite-Datei liegt in data/. Dieses Verzeichnis wird per data/.htaccess
-// gegen direkte HTTP-Zugriffe gesperrt; auf nginx-basierten Setups muss die
-// entsprechende location-Regel gesetzt werden (siehe README.md, Abschnitt 4).
+// Die SQLite-Datei liegt in data/. Im Container sperrt die vhost-Konfiguration
+// (docker/rh20.conf) dieses Verzeichnis gegen direkte HTTP-Zugriffe;
+// data/.htaccess ist nur die zusätzliche Sperre für Betrieb außerhalb des Containers.
 $dbDir  = __DIR__ . '/data';
 $dbFile = $dbDir . '/inspections.sqlite';
 
@@ -35,6 +35,7 @@ $pdo->exec("
         ihs_pressure     REAL,
         ihs_flow         REAL,
         contact_pressure REAL,
+        valve_skipped    INTEGER NOT NULL DEFAULT 0,
         created_at       TEXT    NOT NULL DEFAULT (datetime('now','localtime')),
         updated_at       TEXT
     )
@@ -106,6 +107,13 @@ if (!in_array('contact_pressure', $inspCols, true)) {
 $syringeCols = array_column($pdo->query('PRAGMA table_info(syringe_readings)')->fetchAll(), 'name');
 if (!in_array('valve_slide', $syringeCols, true)) {
     $pdo->exec('ALTER TABLE syringe_readings ADD COLUMN valve_slide REAL');
+}
+
+// Migration 5: Valve Air Stick lässt sich je Prüfung überspringen (Standardwert
+// statt Messung). Bestehende Prüfungen gelten als gemessen — ihre Werte bleiben.
+// $inspCols stammt von Migration 3; seither wurde inspections nicht verändert.
+if (!in_array('valve_skipped', $inspCols, true)) {
+    $pdo->exec('ALTER TABLE inspections ADD COLUMN valve_skipped INTEGER NOT NULL DEFAULT 0');
 }
 
 $pdo->exec("CREATE INDEX IF NOT EXISTS idx_syringe_inspection ON syringe_readings(inspection_id)");

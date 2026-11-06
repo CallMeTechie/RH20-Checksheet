@@ -26,6 +26,8 @@ $columns   = measurementColumns();
 $groups    = measurementGroups();
 $headMeas  = headMeasurements();
 $serial    = $insp['serial_number'] !== '' ? $insp['serial_number'] : '—';
+$skipped   = (int)$insp['valve_skipped'] === 1;
+$valveGroup = $columns['valve_slide']['group'];
 ?>
 <!DOCTYPE html>
 <html lang="<?= h(currentLang()) ?>">
@@ -35,7 +37,7 @@ $serial    = $insp['serial_number'] !== '' ? $insp['serial_number'] : '—';
 <title><?= h(t('report_title', (int)$insp['id'])) ?> — <?= h($serial) ?></title>
 <link rel="stylesheet" href="assets/style.css">
 </head>
-<body class="report">
+<body class="report"<?= ($_GET['print'] ?? '') === '1' ? ' data-autoprint="1"' : '' ?>>
 
 <div class="topbar no-print">
     <div>
@@ -45,10 +47,19 @@ $serial    = $insp['serial_number'] !== '' ? $insp['serial_number'] : '—';
     <div class="actions">
         <?= langSwitcher() ?>
         <?= iconLinkBtn('index.php', 'back', t('btn_back'), 'ghost-onnavy') ?>
-        <?= iconLinkBtn('edit.php?id=' . (int)$insp['id'], 'pencil', t('btn_edit'), 'ghost-onnavy') ?>
+        <?= iconLinkBtn('edit.php?id=' . (int)$insp['id'], 'pencil', t('btn_edit_copy'), 'ghost-onnavy',
+                ['data-copy-menu' => 'copy-menu']) ?>
         <button type="button" class="icon-btn primary" title="<?= h(t('btn_print')) ?>"
                 aria-label="<?= h(t('btn_print')) ?>" onclick="window.print()"><?= svgIcon('printer') ?></button>
     </div>
+</div>
+
+<!-- Kontextmenü am Bearbeiten-Knopf (Rechtsklick), nur in der Berichtsansicht -->
+<div id="copy-menu" class="ctx-menu no-print" role="menu" hidden>
+    <form method="post" action="copy.php">
+        <input type="hidden" name="id" value="<?= (int)$insp['id'] ?>">
+        <button type="submit" role="menuitem"><?= svgIcon('copy', 16) ?><span><?= h(t('menu_copy')) ?></span></button>
+    </form>
 </div>
 
 <div class="wrap wide sheet">
@@ -98,7 +109,7 @@ $serial    = $insp['serial_number'] !== '' ? $insp['serial_number'] : '—';
                 <tr>
                     <th rowspan="2" class="col-syringe"><?= h(t('th_shaft')) ?></th>
                     <?php foreach ($groups as $group => $span): ?>
-                        <th colspan="<?= (int)$span ?>"><?= h($group) ?></th>
+                        <th colspan="<?= (int)$span ?>"><?= h($group) ?><?= $skipped && $group === $valveGroup ? ' *' : '' ?></th>
                     <?php endforeach; ?>
                     <th rowspan="2" class="col-overall"><?= h(t('th_overall')) ?></th>
                 </tr>
@@ -133,6 +144,9 @@ $serial    = $insp['serial_number'] !== '' ? $insp['serial_number'] : '—';
             <span><span class="swatch swatch-bad"></span><?= h(t('legend_bad')) ?></span>
             <span>—&nbsp;<?= h(t('legend_empty')) ?></span>
         </div>
+        <?php if ($skipped): ?>
+            <p class="skip-note" id="valve-skip-note">* <?= h(t('valve_skip_note', fmtNum(VALVE_SKIP_DEFAULT, 2))) ?></p>
+        <?php endif; ?>
     </div>
 
     <!-- Die Zusammenfassung bleibt im Ausdruck als Einheit zusammen -->

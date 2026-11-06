@@ -6,7 +6,6 @@ require __DIR__ . '/functions.php';
 // Nur per POST: Löschen darf nicht durch einen aufgerufenen Link,
 // einen Reload oder einen Link-Prefetch des Browsers ausgelöst werden.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
     header('Location: index.php');
     exit;
 }

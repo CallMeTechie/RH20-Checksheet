@@ -25,6 +25,7 @@ $eval     = evaluateInspection($insp, $byLetter);
 $columns  = measurementColumns();
 $groups   = measurementGroups();
 $headMeas = headMeasurements();
+$skipped  = (int)$insp['valve_skipped'] === 1;
 ?>
 <!DOCTYPE html>
 <html lang="<?= h(currentLang()) ?>">
@@ -43,7 +44,9 @@ $headMeas = headMeasurements();
       data-t-invalid="<?= h(t('status_invalid', '{value}')) ?>"
       data-t-tip-invalid="<?= h(t('tip_invalid')) ?>"
       data-t-tip-failed="<?= h(t('tip_save_failed')) ?>"
-      data-t-pending="<?= h(t('pending')) ?>">
+      data-t-pending="<?= h(t('pending')) ?>"
+      data-t-ready="<?= h(t('status_ready')) ?>"
+      data-t-confirm-skip="<?= h(t('valve_skip_confirm', fmtNum(VALVE_SKIP_DEFAULT, 2))) ?>">
 
 <div class="topbar no-print">
     <div>
@@ -54,6 +57,7 @@ $headMeas = headMeasurements();
         <?= langSwitcher() ?>
         <?= iconLinkBtn('index.php', 'back', t('btn_back'), 'ghost-onnavy') ?>
         <?= iconLinkBtn('view.php?id=' . (int)$insp['id'], 'eye', t('btn_view'), 'ghost-onnavy') ?>
+        <?= iconLinkBtn('view.php?id=' . (int)$insp['id'] . '&print=1', 'printer', t('btn_print'), 'ghost-onnavy') ?>
         <?= iconFormBtn('delete.php', 'trash', t('btn_delete'), 'ghost-onnavy',
                 ['id' => (int)$insp['id']],
                 t('confirm_delete_short', (int)$insp['id'])) ?>
@@ -124,6 +128,10 @@ $headMeas = headMeasurements();
         <h2 class="teal"><?= h(t('section_shaft_meas')) ?></h2>
         <p class="hint"><?= h(t('entry_hint', IHS_REF_SHAFT, (int)IHS_TARGET,
                 fmtNum(IHS_TOL_REF), fmtNum(IHS_TOL_MAX), fmtNum(IHS_TOL_WARN))) ?></p>
+        <label class="skip-toggle">
+            <input type="checkbox" id="valve-skip"<?= $skipped ? ' checked' : '' ?>>
+            <?= h(t('valve_skip_label', fmtNum(VALVE_SKIP_DEFAULT, 2))) ?>
+        </label>
         <div class="table-scroll">
         <table class="spec grid">
             <thead>
@@ -157,7 +165,7 @@ $headMeas = headMeasurements();
                                class="autosave <?= h(cellClass($val, $key, $letter)) ?>"
                                data-scope="syringe" data-field="<?= h($key) ?>" data-syringe="<?= h($letter) ?>"
                                data-row="<?= (int)$row ?>" data-numeric="1"
-                               value="<?= h(fmtNum($val)) ?>">
+                               value="<?= h(fmtNum($val)) ?>"<?= $key === 'valve_slide' && $skipped ? ' readonly' : '' ?>>
                     </td>
                     <?php endforeach; ?>
                     <td id="overall-<?= h($letter) ?>" class="col-overall result-<?= $res ?: 'blank' ?>"><?= $res ?: '—' ?></td>
@@ -177,11 +185,6 @@ $headMeas = headMeasurements();
     <div class="card">
         <h2><?= h(t('summary_section')) ?></h2>
         <?= renderSummary($eval) ?>
-    </div>
-
-    <div class="actions no-print" style="margin-bottom:40px">
-        <?= iconLinkBtn('index.php', 'check', t('btn_done'), 'primary') ?>
-        <?= iconLinkBtn('view.php?id=' . (int)$insp['id'], 'printer', t('btn_view'), 'secondary') ?>
     </div>
 
 </div>

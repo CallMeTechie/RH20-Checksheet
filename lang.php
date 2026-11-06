@@ -71,6 +71,7 @@ function t(string $key, mixed ...$args): string
 function langUrl(string $lang): string
 {
     $params = $_GET;
+    unset($params['print']); // sonst öffnete der Sprachwechsel den Druckdialog erneut
     $params['lang'] = $lang;
     $script = basename((string)($_SERVER['SCRIPT_NAME'] ?? 'index.php'));
     return $script . '?' . http_build_query($params);
@@ -100,10 +101,11 @@ function translations(): array
             'btn_view'           => 'View / Print',
             'btn_delete'         => 'Delete',
             'btn_back'           => 'Back to overview',
-            'btn_done'           => 'Done — back to overview',
             'btn_print'          => 'Print / Save as PDF',
             'confirm_delete'     => 'Permanently delete inspection #%d (%s)?',
             'confirm_delete_short' => 'Permanently delete inspection #%d?',
+            'btn_edit_copy'      => 'Edit — right-click: copy as new inspection',
+            'menu_copy'          => 'Copy as new inspection',
             'no_serial'          => 'no serial number',
 
             // --- Erfassungsmaske ---
@@ -136,6 +138,9 @@ function translations(): array
             'th_shaft'           => 'Shaft',
             'th_overall'         => 'Overall',
             'ref_shaft_tooltip'  => 'Reference shaft: the Internal Head Sensor is calibrated here',
+            'valve_skip_label'   => 'Skip Valve Air Stick measurement — enter the default value %s mm for all 20 shafts',
+            'valve_skip_confirm' => 'Replace the Valve Air Stick readings already entered with the default value %s mm?',
+            'valve_skip_note'    => 'Valve Air Stick: no gauge measurement — default value %s mm entered for all shafts.',
             'entry_hint'         => 'Entry runs column by column: Enter steps from A through T within one column, then jumps to the top of the next. Vacuum Pressure accepts values with or without a minus sign (−88 and 88 are treated alike); the decimal separator may be a point or a comma. Internal Head Sensor Pressure: shaft %s is the reference shaft, calibrated to %d kPa (tolerance ± %s kPa). All other shafts are acceptable up to ± %s kPa; beyond ± %s kPa deviation the value is flagged as borderline in yellow.',
 
             // --- Legende ---
@@ -188,10 +193,11 @@ function translations(): array
             'btn_view'           => 'Ansehen / Drucken',
             'btn_delete'         => 'Löschen',
             'btn_back'           => 'Zur Übersicht',
-            'btn_done'           => 'Fertig — zur Übersicht',
             'btn_print'          => 'Drucken / Als PDF speichern',
             'confirm_delete'     => 'Prüfung #%d (%s) wirklich unwiderruflich löschen?',
             'confirm_delete_short' => 'Prüfung #%d wirklich unwiderruflich löschen?',
+            'btn_edit_copy'      => 'Bearbeiten — Rechtsklick: als neue Prüfung kopieren',
+            'menu_copy'          => 'Als neue Prüfung kopieren',
             'no_serial'          => 'ohne Seriennummer',
 
             'edit_title'         => 'Prüfung #%d bearbeiten',
@@ -221,6 +227,9 @@ function translations(): array
             'th_shaft'           => 'Shaft',
             'th_overall'         => 'Overall',
             'ref_shaft_tooltip'  => 'Referenz-Shaft: hier wird der Internal Head Sensor eingemessen',
+            'valve_skip_label'   => 'Valve-Air-Stick-Messung überspringen — Standardwert %s mm für alle 20 Shafts eintragen',
+            'valve_skip_confirm' => 'Bereits eingetragene Valve-Air-Stick-Messwerte durch den Standardwert %s mm ersetzen?',
+            'valve_skip_note'    => 'Valve Air Stick: keine Messung mit Messmittel — Standardwert %s mm für alle Shafts eingetragen.',
             'entry_hint'         => 'Eingabe erfolgt spaltenweise: Enter läuft erst A → T einer Spalte durch, dann springt es an den Anfang der nächsten Spalte. Vacuum Pressure akzeptiert Werte mit oder ohne Minuszeichen (−88 und 88 werden gleich behandelt), Dezimaltrennzeichen darf Punkt oder Komma sein. Internal Head Sensor Pressure: Shaft %s ist der Referenz-Shaft, an dem auf %d kPa eingemessen wird (Toleranz ± %s kPa). Für alle übrigen Shafts sind bis ± %s kPa zulässig; ab mehr als ± %s kPa Abweichung wird der Wert als grenzwertig gelb markiert.',
 
             'legend_ok'          => 'Innerhalb der Spezifikation',

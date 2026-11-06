@@ -1,7 +1,7 @@
-# RH20 Kopf-Prüfprotokoll — Container für Synology (DS918+, x86-64)
+# RH20 Kopf-Prüfprotokoll — Container für Synology (x86-64)
 #
 # Basis: offizielles PHP-Apache-Image. PHP 8.3 erfüllt die Mindestanforderung
-# der App (8.1+, siehe README Abschnitt 1); pdo_sqlite und sqlite3 sind in
+# der App (8.1+, u. a. Rückgabetyp never); pdo_sqlite und sqlite3 sind in
 # diesem Image bereits eingebaut und werden im Build verifiziert.
 FROM php:8.3-apache
 
