@@ -174,6 +174,20 @@ try {
     t_is('Bericht ohne print=1 startet keinen Druck', str_contains($view, 'data-autoprint'), false);
     // Der Bericht selbst verlinkt nirgends mit print=1 — ein Treffer stammt aus dem Sprachumschalter.
     t_is('Sprachumschalter öffnet den Druck nicht erneut', preg_match('#href="[^"]*print=1#', $view2), 0);
+
+    // --- Footer und Asset-Versionen auf allen Seiten ---
+    [, , $index] = $get('index.php');
+    $hash = fn(string $f) => substr(md5_file($root . '/assets/' . $f), 0, 10);
+    foreach (['Übersicht' => $index, 'Erfassung' => $edit, 'Bericht' => $view] as $name => $html) {
+        t_is("$name: style.css mit Inhalts-Version", str_contains($html, 'assets/style.css?v=' . $hash('style.css')), true);
+        t_is("$name: app.js mit Inhalts-Version", str_contains($html, 'assets/app.js?v=' . $hash('app.js')), true);
+        t_is("$name: Footer vorhanden", substr_count($html, '<footer class="site-footer'), 1);
+        t_is("$name: Footer verlinkt LinkedIn",
+            str_contains($html, 'href="https://www.linkedin.com/in/ma-backes/"'), true);
+        t_is("$name: Footer zeigt die Version", str_contains($html, 'v' . APP_VERSION), true);
+        t_is("$name: Footer zeigt das Fuji-Logo",
+            str_contains($html, 'src="assets/fuji_logo_rgb.webp?v=' . $hash('fuji_logo_rgb.webp') . '"'), true);
+    }
 } finally {
     proc_terminate($proc);
     proc_close($proc);

@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/lang.php';
 
+/** Versionsnummer im Footer. Beim Release zusammen mit dem Image-Tag in
+ *  docker-compose.yml, README.md und docs/OFFLINE-INSTALL.md anheben
+ *  (tests/version_test.php prüft das). */
+const APP_VERSION = '1.3.3';
+
 /* ---------------------------------------------------------------------------
  * Prüfvorgaben Internal Head Sensor (Nozzle Cleaning, gemessen je Shaft)
  *
@@ -363,6 +368,38 @@ function renderSummary(array $eval): string
          . '<ul class="summary-counts">' . $counts . '</ul>'
          . '<div class="summary-total">' . h(t('shafts_total', (int)$eval['total'])) . '</div>'
          . '</div>';
+}
+
+/**
+ * Pfad einer Datei unter assets/ mit Inhalts-Fingerabdruck (?v=…).
+ *
+ * Apache liefert die Dateien ohne Cache-Vorgabe aus; Browser verwenden sie dann
+ * nach einer Faustregel tagelang weiter, ohne nachzufragen. Nach einem Update
+ * lief so das alte app.js gegen die neuen Seiten — neue Funktionen fehlten
+ * still. Mit dem Fingerabdruck ändert sich die Adresse, sobald sich die Datei
+ * ändert, und der Browser muss sie neu laden.
+ */
+function asset(string $path): string
+{
+    static $cache = [];
+    if (!isset($cache[$path])) {
+        $file = __DIR__ . '/' . $path;
+        $cache[$path] = $path . '?v=' . (is_file($file) ? substr(md5_file($file), 0, 10) : APP_VERSION);
+    }
+    return $cache[$path];
+}
+
+/** Footer aller Seiten: Urheber in der Mitte, rechts Auftraggeber und Version. */
+function siteFooter(): string
+{
+    return '<footer class="site-footer no-print">'
+         . '<div class="footer-center">Made with <span class="footer-heart" role="img" aria-label="love">❤️</span> by '
+         . '<a href="https://www.linkedin.com/in/ma-backes/" target="_blank" rel="noopener noreferrer">CallMeTechie</a></div>'
+         . '<div class="footer-right">'
+         . '<span class="footer-made-for">Made for <img src="' . h(asset('assets/fuji_logo_rgb.webp')) . '" alt="Fuji" width="74" height="34"></span>'
+         . '<span class="footer-version">v' . h(APP_VERSION) . '</span>'
+         . '</div>'
+         . '</footer>';
 }
 
 function h(mixed $v): string

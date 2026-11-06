@@ -272,6 +272,7 @@ ein Shaft grenzwertig ist; sonst PASS.
 ├── icons.php                  SVG-Icon-Set + Icon-Button-Helfer
 ├── assets/style.css            Layout (Bildschirm + Druck)
 ├── assets/app.js                Auto-Save + Enter-Tastatur-Navigation
+├── assets/fuji_logo_rgb.webp     Logo im Footer
 ├── Dockerfile                    Image-Definition (php:8.3-apache)
 ├── docker-compose.yml             Startkonfiguration
 ├── docker/rh20.conf                vhost; sperrt den Zugriff auf data/

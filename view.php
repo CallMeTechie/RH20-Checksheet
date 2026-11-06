@@ -35,7 +35,7 @@ $valveGroup = $columns['valve_slide']['group'];
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= h(t('report_title', (int)$insp['id'])) ?> — <?= h($serial) ?></title>
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="<?= h(asset('assets/style.css')) ?>">
 </head>
 <body class="report"<?= ($_GET['print'] ?? '') === '1' ? ' data-autoprint="1"' : '' ?>>
 
@@ -157,6 +157,8 @@ $valveGroup = $columns['valve_slide']['group'];
 
 </div>
 
-<script src="assets/app.js"></script>
+<?= siteFooter() ?>
+
+<script src="<?= h(asset('assets/app.js')) ?>"></script>
 </body>
 </html>
