@@ -6,7 +6,7 @@ require_once __DIR__ . '/lang.php';
 /** Versionsnummer im Footer. Beim Release zusammen mit dem Image-Tag in
  *  docker-compose.yml, README.md und docs/OFFLINE-INSTALL.md anheben
  *  (tests/version_test.php prüft das). */
-const APP_VERSION = '1.3.4';
+const APP_VERSION = '1.3.5';
 
 /* ---------------------------------------------------------------------------
  * Prüfvorgaben Internal Head Sensor (Nozzle Cleaning, gemessen je Shaft)
