@@ -47,7 +47,7 @@ $valveGroup = $columns['valve_slide']['group'];
     <div class="actions">
         <?= langSwitcher() ?>
         <?= iconLinkBtn('index.php', 'back', t('btn_back'), 'ghost-onnavy') ?>
-        <?= iconLinkBtn('edit.php?id=' . (int)$insp['id'], 'pencil', t('btn_edit_copy'), 'ghost-onnavy',
+        <?= iconLinkBtn('edit.php?id=' . (int)$insp['id'], 'pencil', t('btn_edit'), 'ghost-onnavy',
                 ['data-copy-menu' => 'copy-menu']) ?>
         <button type="button" class="icon-btn primary" title="<?= h(t('btn_print')) ?>"
                 aria-label="<?= h(t('btn_print')) ?>" onclick="window.print()"><?= svgIcon('printer') ?></button>

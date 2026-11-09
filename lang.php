@@ -104,7 +104,6 @@ function translations(): array
             'btn_print'          => 'Print / Save as PDF',
             'confirm_delete'     => 'Permanently delete inspection #%d (%s)?',
             'confirm_delete_short' => 'Permanently delete inspection #%d?',
-            'btn_edit_copy'      => 'Edit — right-click: copy as new inspection',
             'menu_copy'          => 'Copy as new inspection',
             'no_serial'          => 'no serial number',
 
@@ -196,7 +195,6 @@ function translations(): array
             'btn_print'          => 'Drucken / Als PDF speichern',
             'confirm_delete'     => 'Prüfung #%d (%s) wirklich unwiderruflich löschen?',
             'confirm_delete_short' => 'Prüfung #%d wirklich unwiderruflich löschen?',
-            'btn_edit_copy'      => 'Bearbeiten — Rechtsklick: als neue Prüfung kopieren',
             'menu_copy'          => 'Als neue Prüfung kopieren',
             'no_serial'          => 'ohne Seriennummer',
 

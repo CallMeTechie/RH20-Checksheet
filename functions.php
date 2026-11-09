@@ -389,16 +389,14 @@ function asset(string $path): string
     return $cache[$path];
 }
 
-/** Footer aller Seiten: Urheber in der Mitte, rechts Auftraggeber und Version. */
+/** Footer aller Seiten: links Auftraggeber, in der Mitte Urheber, rechts unten die Version. */
 function siteFooter(): string
 {
     return '<footer class="site-footer no-print">'
+         . '<div class="footer-made-for">Made for <img src="' . h(asset('assets/fuji_logo_rgb.webp')) . '" alt="Fuji" width="74" height="34"></div>'
          . '<div class="footer-center">Made with <span class="footer-heart" role="img" aria-label="love">❤️</span> by '
          . '<a href="https://www.linkedin.com/in/ma-backes/" target="_blank" rel="noopener noreferrer">CallMeTechie</a></div>'
-         . '<div class="footer-right">'
-         . '<span class="footer-made-for">Made for <img src="' . h(asset('assets/fuji_logo_rgb.webp')) . '" alt="Fuji" width="74" height="34"></span>'
-         . '<span class="footer-version">v' . h(APP_VERSION) . '</span>'
-         . '</div>'
+         . '<div class="footer-version">v' . h(APP_VERSION) . '</div>'
          . '</footer>';
 }
 

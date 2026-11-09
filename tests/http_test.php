@@ -162,6 +162,8 @@ try {
     [, , $edit] = $get('edit.php?id=' . $iid);
     t_is('Bericht bietet das Kopiermenü an', str_contains($view, 'action="copy.php"'), true);
     t_is('Erfassung bietet kein Kopiermenü an', str_contains($edit, 'action="copy.php"'), false);
+    t_is('Bearbeiten-Knopf im Bericht ohne Hinweis aufs Kopieren',
+        (bool)preg_match('#<a href="edit\.php\?id=' . $iid . '"[^>]*title="Edit"[^>]*data-copy-menu#', $view), true);
     t_is('Bericht vermerkt die übersprungene Messung', str_contains($view, 'id="valve-skip-note"'), true);
     t_is('Erfassung: Checkbox ist gesetzt', (bool)preg_match('/id="valve-skip"[^>]*\bchecked\b/', $edit), true);
     t_is('Erfassung: Valve-Felder sind schreibgeschützt',

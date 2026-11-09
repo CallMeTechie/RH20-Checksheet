@@ -377,10 +377,12 @@ table.spec tbody tr td.result-blank { color: var(--muted); }
 .footer-center { grid-column: 2; text-align: center; white-space: nowrap; }
 .footer-center a { color: var(--teal); font-weight: 600; text-decoration: none; }
 .footer-center a:hover { text-decoration: underline; }
-.footer-right { grid-column: 3; justify-self: end; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
-.footer-made-for { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.footer-made-for { grid-column: 1; justify-self: start; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
 .footer-made-for img { display: block; height: 34px; width: auto; }
-.footer-version { font-size: 9.5px; color: #8A9AA6; font-family: ui-monospace, "SF Mono", Consolas, monospace; }
+.footer-version {
+    grid-column: 3; justify-self: end; align-self: end;
+    font-size: 9.5px; color: #8A9AA6; font-family: ui-monospace, "SF Mono", Consolas, monospace;
+}
 
 /* =========================================================================
    Druck — DIN A4 Querformat, höchstens zwei Seiten
